@@ -1,0 +1,11 @@
+require: rubocop-performance
+
+# overrides
+Style/Documentation:
+  Enabled: false
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+
+# opt-in new cops
+AllCops:
+  NewCops: enable
