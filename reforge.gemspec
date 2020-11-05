@@ -1,12 +1,8 @@
 # frozen_string_literal: true
 
-lib = File.expand_path("lib", __dir__)
-$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require "reforge/version"
-
 Gem::Specification.new do |spec|
   spec.name = "reforge"
-  spec.version = Reforge::VERSION
+  spec.version = "0.1.0"
   spec.authors = ["Nate Eizenga"]
   spec.email = ["eizengan@gmail.com"]
 
@@ -37,6 +33,8 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.required_ruby_version = "~> 2.6.6"
+
+  spec.add_dependency "zeitwerk", "~> 2.4"
 
   spec.add_development_dependency "bundler", "~> 2.0"
   spec.add_development_dependency "pry-byebug", "~> 3.9"

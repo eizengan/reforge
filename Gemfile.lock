@@ -2,6 +2,7 @@ PATH
   remote: .
   specs:
     reforge (0.1.0)
+      zeitwerk (~> 2.4)
 
 GEM
   remote: https://rubygems.org/
@@ -53,6 +54,7 @@ GEM
       rubocop-ast (>= 0.4.0)
     ruby-progressbar (1.10.1)
     unicode-display_width (1.7.0)
+    zeitwerk (2.4.0)
 
 PLATFORMS
   ruby
