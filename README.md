@@ -1,5 +1,7 @@
 # Reforge
 
+[![Gem Version](https://badge.fury.io/rb/reforge.svg)](https://badge.fury.io/rb/reforge)
+
 Simple DSL-driven data transformation for Ruby
 
 ## Installation
