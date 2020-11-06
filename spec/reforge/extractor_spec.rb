@@ -65,13 +65,29 @@ RSpec.describe Reforge::Extractor do
       it "does not set the transform" do
         expect(transform_attr).to be_nil
       end
+
+      context "when memoize is invalid" do
+        let(:args) { { type: :key, args: [:key], memoize: 10 } }
+
+        it "raises an ArgumentError during initialization" do
+          expect { instance }.to raise_error ArgumentError, "When present memoize must be true or false"
+        end
+      end
+
+      context "when memoize is true" do
+        let(:args) { { type: :key, args: [:key], memoize: true } }
+
+        it "raises an ArgumentError during initialization" do
+          expect { instance }.to raise_error ArgumentError, "The transform must be callable"
+        end
+      end
     end
 
     context "when an invalid transform is supplied" do
       let(:args) { { type: :key, args: [:key], transform: {} } }
 
       it "raises an ArgumentError during initialization" do
-        expect { instance }.to raise_error ArgumentError, "Transform must be a Proc"
+        expect { instance }.to raise_error ArgumentError, "The transform must be callable"
       end
     end
 
@@ -81,6 +97,25 @@ RSpec.describe Reforge::Extractor do
 
       it "sets the transform" do
         expect(transform_attr).to be transform
+      end
+
+      context "when memoize is invalid" do
+        let(:args) { { type: :key, args: [:key], transform: transform, memoize: 10 } }
+
+        it "raises an ArgumentError during initialization" do
+          expect { instance }.to raise_error ArgumentError, "When present memoize must be true or false"
+        end
+      end
+
+      context "when memoize is true" do
+        let(:args) { { type: :key, args: [:key], transform: transform, memoize: true } }
+
+        before { allow(described_class::MemoizedTransform).to receive(:new).and_return(:memoized_transform) }
+
+        it "sets a memoized version of the transform" do
+          expect(transform_attr).to be :memoized_transform
+          expect(described_class::MemoizedTransform).to have_received(:new).once.with(transform)
+        end
       end
     end
   end

@@ -11,11 +11,12 @@ module Reforge
 
     attr_reader :implementation, :transform
 
-    def initialize(type:, args:, transform: nil)
-      validate_transform!(transform) unless transform.nil?
+    def initialize(type:, args:, transform: nil, memoize: nil)
+      raise ArgumentError, "The transform must be callable" unless transform.nil? || transform.respond_to?(:call)
+      raise ArgumentError, "When present memoize must be true or false" unless [nil, false, true].include?(memoize)
 
       @implementation = create_implementation(type, args)
-      @transform = transform
+      @transform = create_transform(transform, memoize)
     end
 
     def extract_from(source)
@@ -24,12 +25,6 @@ module Reforge
     end
 
     private
-
-    def validate_transform!(transform)
-      return if transform.is_a?(Proc)
-
-      raise ArgumentError, "Transform must be a Proc"
-    end
 
     def transform_value(value)
       return value if transform.nil?
@@ -45,6 +40,14 @@ module Reforge
       raise ExtractorTypeError, "No Extractor implementation for type '#{type}'" unless IMPLEMENTATIONS.key?(type)
 
       IMPLEMENTATIONS[type]
+    end
+
+    def create_transform(transform, memoize)
+      if memoize
+        MemoizedTransform.new(transform)
+      else
+        transform
+      end
     end
   end
 end
