@@ -8,27 +8,35 @@ on:
 
 # TODO: actions/cache to speed up deployment
 jobs:
-  rubocop:
+  lint:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Ruby
-      uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@v1
       with:
         ruby-version: 2.6.6
     - name: Install dependencies
       run: bundle install --jobs 20 --retry 5
     - name: Lint files
       run: bundle exec rubocop
-  rspec:
+  test:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Ruby
-      uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@v1
       with:
         ruby-version: 2.6.6
+    - name: Download test reporter
+      run: |
+        curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+        chmod +x ./cc-test-reporter
+    - name: Notify of pending report
+      run: ./cc-test-reporter before-build
     - name: Install dependencies
       run: bundle install --jobs 20 --retry 5
     - name: Run tests
       run: bundle exec rspec
+    - name: Publish code coverage
+      run: |
+        export GIT_BRANCH="${GITHUB_REF/refs\/heads\//}"
+        ./cc-test-reporter after-build -r ${{secrets.CC_TEST_REPORTER_ID}}
