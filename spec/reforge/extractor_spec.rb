@@ -19,6 +19,15 @@ RSpec.describe Reforge::Extractor do
       expect(extract_from).to be :extracted_value
       expect(implementation).to have_received(:extract_from).once.with(:source)
     end
+
+    context "when a transform is provided" do
+      let(:args) { { type: :key, args: [:key], transform: ->(v) { v.to_s } } }
+
+      it "delegates to the implementation and transforms the value" do
+        expect(extract_from).to eq "extracted_value"
+        expect(implementation).to have_received(:extract_from).once.with(:source)
+      end
+    end
   end
 
   describe "#implementation" do
@@ -43,6 +52,35 @@ RSpec.describe Reforge::Extractor do
       it "forwards args to create a ValueExtractor implementation" do
         expect(implementation).to be_an_instance_of described_class::ValueExtractor
         expect(described_class::ValueExtractor).to have_received(:new).once.with(10)
+      end
+    end
+  end
+
+  describe "#transform" do
+    subject(:transform_attr) { instance.transform }
+
+    context "when no transform is supplied" do
+      let(:args) { { type: :key, args: [:key] } }
+
+      it "does not set the transform" do
+        expect(transform_attr).to be_nil
+      end
+    end
+
+    context "when an invalid transform is supplied" do
+      let(:args) { { type: :key, args: [:key], transform: {} } }
+
+      it "raises an ArgumentError during initialization" do
+        expect { instance }.to raise_error ArgumentError, "Transform must be a Proc"
+      end
+    end
+
+    context "when a valid transform is supplied" do
+      let(:args) { { type: :key, args: [:key], transform: transform } }
+      let(:transform) { ->(v) { v.to_s } }
+
+      it "sets the transform" do
+        expect(transform_attr).to be transform
       end
     end
   end
