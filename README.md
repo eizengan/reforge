@@ -1,6 +1,8 @@
 # Reforge
 
 [![Gem Version](https://badge.fury.io/rb/reforge.svg)](https://badge.fury.io/rb/reforge)
+[![Maintainability](https://api.codeclimate.com/v1/badges/ca2883109cdb44f8cc9e/maintainability)](https://codeclimate.com/github/eizengan/reforge/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/ca2883109cdb44f8cc9e/test_coverage)](https://codeclimate.com/github/eizengan/reforge/test_coverage)
 
 Simple DSL-driven data transformation for Ruby
 
