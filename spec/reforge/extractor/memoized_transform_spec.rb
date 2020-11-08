@@ -27,13 +27,21 @@ RSpec.describe Reforge::Extractor::MemoizedTransform do
       end
     end
 
-    context "when already called with a different value which uses the same memo key" do
+    context "when the :by option has been specified" do
       let(:memoize_configuration) { { by: ->(v) { v.to_s.first } } }
-      let!(:first_result) { instance.call(100) }
 
-      it "returns the same value in both cases, but delegates to the transform once" do
-        expect(call).to eq first_result
+      it "delegates to the underlying transform" do
+        expect(call).to eq "10"
         expect(transform).to have_received(:call).once.with(10)
+      end
+
+      context "when already called with a different value which uses the same memo key" do
+        let!(:first_result) { instance.call(100) }
+
+        it "returns the same value in both cases, but delegates to the transform once" do
+          expect(call).to eq first_result
+          expect(transform).to have_received(:call).once.with(10)
+        end
       end
     end
   end
