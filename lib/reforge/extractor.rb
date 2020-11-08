@@ -33,9 +33,9 @@ module Reforge
     end
 
     def validate_memoize!(memoize)
-      return if [nil, false, true].include?(memoize)
+      return if [nil, false, true].include?(memoize) || memoize.is_a?(Hash)
 
-      raise ArgumentError, "The memoize option must be true or false"
+      raise ArgumentError, "The memoize option must be true, false, or a configuration hash"
     end
 
     def transform_value(value)
@@ -55,7 +55,9 @@ module Reforge
     end
 
     def create_transform(transform, memoize)
-      if memoize
+      if memoize.is_a?(Hash)
+        MemoizedTransform.new(transform, **memoize)
+      elsif memoize
         MemoizedTransform.new(transform)
       else
         transform
