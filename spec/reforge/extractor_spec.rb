@@ -54,6 +54,14 @@ RSpec.describe Reforge::Extractor do
         expect(described_class::ValueExtractor).to have_received(:new).once.with(10)
       end
     end
+
+    context "when initialized with an unknown type" do
+      let(:args) { { type: :not_a_known_type, args: [10] } }
+
+      it "raises an ExtractorTypeError error during initialization" do
+        expect { instance }.to raise_error described_class::ExtractorTypeError, "No Extractor implementation for type 'not_a_known_type'"
+      end
+    end
   end
 
   describe "#transform" do
@@ -70,7 +78,7 @@ RSpec.describe Reforge::Extractor do
         let(:args) { { type: :key, args: [:key], memoize: 10 } }
 
         it "raises an ArgumentError during initialization" do
-          expect { instance }.to raise_error ArgumentError, "When present memoize must be true or false"
+          expect { instance }.to raise_error ArgumentError, "The memoize option must be true or false"
         end
       end
 
@@ -103,7 +111,7 @@ RSpec.describe Reforge::Extractor do
         let(:args) { { type: :key, args: [:key], transform: transform, memoize: 10 } }
 
         it "raises an ArgumentError during initialization" do
-          expect { instance }.to raise_error ArgumentError, "When present memoize must be true or false"
+          expect { instance }.to raise_error ArgumentError, "The memoize option must be true or false"
         end
       end
 
