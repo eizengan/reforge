@@ -12,8 +12,8 @@ module Reforge
     attr_reader :implementation, :transform
 
     def initialize(type:, args:, transform: nil, memoize: nil)
-      raise ArgumentError, "The transform must be callable" unless transform.nil? || transform.respond_to?(:call)
-      raise ArgumentError, "When present memoize must be true or false" unless [nil, false, true].include?(memoize)
+      validate_transform!(transform)
+      validate_memoize!(memoize)
 
       @implementation = create_implementation(type, args)
       @transform = create_transform(transform, memoize)
@@ -25,6 +25,18 @@ module Reforge
     end
 
     private
+
+    def validate_transform!(transform)
+      return if transform.nil? || transform.respond_to?(:call)
+
+      raise ArgumentError, "The transform must be callable"
+    end
+
+    def validate_memoize!(memoize)
+      return if [nil, false, true].include?(memoize) || memoize.is_a?(Hash)
+
+      raise ArgumentError, "The memoize option must be true, false, or a configuration hash"
+    end
 
     def transform_value(value)
       return value if transform.nil?
@@ -43,7 +55,9 @@ module Reforge
     end
 
     def create_transform(transform, memoize)
-      if memoize
+      if memoize.is_a?(Hash)
+        MemoizedTransform.new(transform, **memoize)
+      elsif memoize
         MemoizedTransform.new(transform)
       else
         transform

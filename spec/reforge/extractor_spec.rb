@@ -54,6 +54,14 @@ RSpec.describe Reforge::Extractor do
         expect(described_class::ValueExtractor).to have_received(:new).once.with(10)
       end
     end
+
+    context "when initialized with an unknown type" do
+      let(:args) { { type: :not_a_known_type, args: [10] } }
+
+      it "raises an ExtractorTypeError error during initialization" do
+        expect { instance }.to raise_error described_class::ExtractorTypeError, "No Extractor implementation for type 'not_a_known_type'"
+      end
+    end
   end
 
   describe "#transform" do
@@ -70,12 +78,20 @@ RSpec.describe Reforge::Extractor do
         let(:args) { { type: :key, args: [:key], memoize: 10 } }
 
         it "raises an ArgumentError during initialization" do
-          expect { instance }.to raise_error ArgumentError, "When present memoize must be true or false"
+          expect { instance }.to raise_error ArgumentError, "The memoize option must be true, false, or a configuration hash"
         end
       end
 
       context "when memoize is true" do
         let(:args) { { type: :key, args: [:key], memoize: true } }
+
+        it "raises an ArgumentError during initialization" do
+          expect { instance }.to raise_error ArgumentError, "The transform must be callable"
+        end
+      end
+
+      context "when memoize is a configuration hash" do
+        let(:args) { { type: :key, args: [:key], memoize: { by: ->(v) { v.to_s } } } }
 
         it "raises an ArgumentError during initialization" do
           expect { instance }.to raise_error ArgumentError, "The transform must be callable"
@@ -103,7 +119,7 @@ RSpec.describe Reforge::Extractor do
         let(:args) { { type: :key, args: [:key], transform: transform, memoize: 10 } }
 
         it "raises an ArgumentError during initialization" do
-          expect { instance }.to raise_error ArgumentError, "When present memoize must be true or false"
+          expect { instance }.to raise_error ArgumentError, "The memoize option must be true, false, or a configuration hash"
         end
       end
 
@@ -115,6 +131,26 @@ RSpec.describe Reforge::Extractor do
         it "sets a memoized version of the transform" do
           expect(transform_attr).to be :memoized_transform
           expect(described_class::MemoizedTransform).to have_received(:new).once.with(transform)
+        end
+      end
+
+      context "when memoize is an invalid configuration hash" do
+        let(:args) { { type: :key, args: [:key], transform: transform, memoize: { by: 10 } } }
+
+        it "raises an ArgumentError during initialization" do
+          expect { instance }.to raise_error ArgumentError, "The :by option of the configuration hash must be callable"
+        end
+      end
+
+      context "when memoize is a valid configuration hash" do
+        let(:args) { { type: :key, args: [:key], transform: transform, memoize: configuration_hash } }
+        let(:configuration_hash) { { by: ->(v) { v.to_s } } }
+
+        before { allow(described_class::MemoizedTransform).to receive(:new).and_return(:memoized_transform) }
+
+        it "sets a configured, memoized version of the transform" do
+          expect(transform_attr).to be :memoized_transform
+          expect(described_class::MemoizedTransform).to have_received(:new).once.with(transform, configuration_hash)
         end
       end
     end
