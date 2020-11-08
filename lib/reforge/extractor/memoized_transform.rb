@@ -32,10 +32,10 @@ module Reforge
       end
 
       def memo_key_from(value)
-        if @key_extractor.nil?
+        if @memoize_by.nil?
           value
         else
-          @key_extractor.call(value)
+          @memoize_by.call(value)
         end
       end
     end

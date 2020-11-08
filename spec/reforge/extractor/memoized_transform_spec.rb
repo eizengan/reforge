@@ -28,7 +28,7 @@ RSpec.describe Reforge::Extractor::MemoizedTransform do
     end
 
     context "when the :by option has been specified" do
-      let(:memoize_configuration) { { by: ->(v) { v.to_s.first } } }
+      let(:memoize_configuration) { { by: ->(v) { v.to_s[0] } } }
 
       it "delegates to the underlying transform" do
         expect(call).to eq "10"
@@ -40,7 +40,8 @@ RSpec.describe Reforge::Extractor::MemoizedTransform do
 
         it "returns the same value in both cases, but delegates to the transform once" do
           expect(call).to eq first_result
-          expect(transform).to have_received(:call).once.with(10)
+          expect(transform).not_to have_received(:call).with(10)
+          expect(transform).to have_received(:call).once.with(100)
         end
       end
     end
