@@ -6,12 +6,6 @@ module Reforge
       class ArrayNode
         attr_reader :children
 
-        def self.validate_key!(key)
-          return if key.is_a?(Integer)
-
-          raise ArgumentError, "The key must be an Integer"
-        end
-
         def initialize
           @children = []
         end

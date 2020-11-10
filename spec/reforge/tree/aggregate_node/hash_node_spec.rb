@@ -3,36 +3,6 @@
 RSpec.describe Reforge::Tree::AggregateNode::HashNode do
   subject(:instance) { described_class.new }
 
-  describe ".validate_key!" do
-    subject(:validate_key!) { described_class.validate_key!(key) }
-
-    let(:key) { nil }
-
-    context "when the key is a Symbol" do
-      let(:key) { :the_key }
-
-      it "does not raise" do
-        expect { validate_key! }.not_to raise_error
-      end
-    end
-
-    context "when the key is a String" do
-      let(:key) { "the_key" }
-
-      it "does not raise" do
-        expect { validate_key! }.not_to raise_error
-      end
-    end
-
-    context "when the key is not a Symbol or String" do
-      let(:key) { 123 }
-
-      it "raises an ArgumentError" do
-        expect { validate_key! }.to raise_error ArgumentError, "The key must be a Symbol or String"
-      end
-    end
-  end
-
   describe "#children" do
     subject(:children) { instance.children }
 

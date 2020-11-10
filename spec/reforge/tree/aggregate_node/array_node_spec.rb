@@ -3,28 +3,6 @@
 RSpec.describe Reforge::Tree::AggregateNode::ArrayNode do
   subject(:instance) { described_class.new }
 
-  describe ".validate_key!" do
-    subject(:validate_key!) { described_class.validate_key!(key) }
-
-    let(:key) { nil }
-
-    context "when the key is an Integer" do
-      let(:key) { 123 }
-
-      it "does not raise" do
-        expect { validate_key! }.not_to raise_error
-      end
-    end
-
-    context "when the key is not an Integer" do
-      let(:key) { "hi" }
-
-      it "raises an ArgumentError" do
-        expect { validate_key! }.to raise_error ArgumentError, "The key must be an Integer"
-      end
-    end
-  end
-
   describe "#children" do
     subject(:children) { instance.children }
 

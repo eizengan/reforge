@@ -6,12 +6,6 @@ module Reforge
       class HashNode
         attr_reader :children
 
-        def self.validate_key!(key)
-          return if key.is_a?(Symbol) || key.is_a?(String)
-
-          raise ArgumentError, "The key must be a Symbol or String"
-        end
-
         def initialize
           @children = {}
         end
