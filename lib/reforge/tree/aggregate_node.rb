@@ -10,6 +10,7 @@ module Reforge
         String => HashNode,
         Symbol => HashNode
       }.freeze
+      ALLOWED_KEY_TYPES = IMPLEMENTATIONS.keys.freeze
 
       attr_reader :implementation
 
