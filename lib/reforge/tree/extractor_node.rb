@@ -3,6 +3,8 @@
 module Reforge
   class Tree
     class ExtractorNode
+      attr_reader :extractor
+
       def initialize(extractor)
         validate_extractor!(extractor)
 
@@ -10,7 +12,7 @@ module Reforge
       end
 
       def reforge(source)
-        @extractor.extract_from(source)
+        extractor.extract_from(source)
       end
 
       private

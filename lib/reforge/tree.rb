@@ -2,30 +2,28 @@
 
 module Reforge
   class Tree
-    class PathTypeError < StandardError; end
+    class PathRedefinitionError < StandardError; end
+    class PathPartError < StandardError; end
 
     attr_reader :root
 
-    def add_extractor(*path, extractor)
-      validate_extractor!(extractor)
+    def attach_extractor(*path)
+      validate_path!(*path)
 
-      node = @root ||= create_node(path[0])
-
-      # TRICKY: we need two contiguous steps in the path to create and attach a node. The first tells where on the
-      # parent node to attach the new node, and the second allows us to infer which type of node we need to attach.
+      # TRICKY: A single-step path means we are wrapping a single extractor. We set the root node accordingly, allowing
+      # it to fail loudly if it is being redefined
       #
-      # As an example, in add_extractor(:foo, 0, :bar, extractor) the pair of steps [:foo, 0] would tell us we need to
-      # attach an ArrayNode (inferred by 0) at @root's :foo index. We then move to [0, :bar], which tell us we need to
-      # attach a HashNode (inferred by :bar) at the ArrayNode's 0 index. Finally we move to [:bar, extractor], which
-      # tells us to attach an ExtractorNode (inferred by extractor) at the HashNode's :bar index
-      #
-      # To fulfill this requirement we turn the arguments to this method into offset arrays and zip them together
-      next_path_steps = [*path[1..], extractor]
-      path.zip(next_path_steps).each do |step, next_step|
-        node = node[step] ||= create_node(next_step)
+      # A multi-step path means we are wrapping a branching tree with extractors at its leaf nodes. We only initialize
+      # the root node if we have not done so already, and then begin attaching the nodes necessitated by the supplied
+      # path. The nodes are expected to fail loudly if their attachment rules are violated
+      if path.size == 1
+        initialize_root(path[0])
+      else
+        initialize_root(path[0]) if root.nil?
+        add_nodes(*path)
       end
 
-      self
+      nil
     end
 
     def reforge(source)
@@ -34,19 +32,50 @@ module Reforge
 
     private
 
-    def validate_extractor!(extractor)
-      return if extractor.is_a?(Extractor)
+    def validate_path!(*path, extractor)
+      raise ArgumentError, "The path must end with a Reforge::Extractor" unless extractor.is_a?(Extractor)
 
-      raise ArgumentError, "The extractor must be a Reforge::Extractor"
+      path.each { |path_part| validate_path_part!(path_part) }
     end
 
-    def create_node(step)
-      if AggregateNode::ALLOWED_KEY_TYPES.include?(step.class)
-        AggregateNode.new(step.class)
-      elsif step.is_a?(Extractor)
-        ExtractorNode.new(step)
+    def validate_path_part!(path_part)
+      return if AggregateNode::ALLOWED_KEY_TYPES.include?(path_part.class)
+
+      raise ArgumentError, "The path includes '#{path_part}' which has unknown key type #{path_part.class}"
+    end
+
+    def initialize_root(path_part)
+      raise PathRedefinitionError, "The root has already been defined" unless root.nil?
+
+      @root = create_node(path_part)
+    end
+
+    def add_nodes(*path)
+      node = root
+
+      # TRICKY: we need two contiguous steps in the path to create and attach a node. The first tells where on the
+      # parent node to attach the new node, and the second allows us to infer which type of node we need to attach.
+      #
+      # As an example, in add_nodes(:foo, 0, :bar, extractor) the pair of steps [:foo, 0] would tell us we need to
+      # attach an ArrayNode (inferred by 0) at root's :foo index. We then move to [0, :bar], which tell us we need to
+      # attach a HashNode (inferred by :bar) at the ArrayNode's 0 index. Finally we move to [:bar, extractor], which
+      # tells us to attach an ExtractorNode (inferred by extractor) at the HashNode's :bar index
+      #
+      # To fulfill this requirement we turn the arguments to this method into offset arrays and zip them together
+      parent_path_parts = path[0..-2]
+      child_path_parts = path[1..]
+      parent_path_parts.zip(child_path_parts).each do |parent_path_part, child_path_part|
+        node = node[parent_path_part] ||= create_node(child_path_part)
+      end
+    end
+
+    def create_node(path_part)
+      if AggregateNode::ALLOWED_KEY_TYPES.include?(path_part.class)
+        AggregateNode.new(path_part.class)
+      elsif path_part.is_a?(Extractor)
+        ExtractorNode.new(path_part)
       else
-        raise PathTypeError, "Path includes an element of type #{step.class} with no corresponding node type"
+        raise PathPartError, "Cannot create node from path_part type #{step.class}"
       end
     end
   end
