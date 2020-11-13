@@ -6,7 +6,9 @@ on:
     branches:
     - main
 
-# TODO: actions/cache to speed up deployment
+env:
+  BUNDLE_PATH: vendor/bundle
+
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -15,10 +17,18 @@ jobs:
     - uses: ruby/setup-ruby@v1
       with:
         ruby-version: 2.6.6
+    - name: Cache dependencies
+      id: cache-dependencies
+      uses: actions/cache@v2
+      with:
+        path: ${{ env.BUNDLE_PATH }}
+        key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
     - name: Install dependencies
+      if: steps.cache-dependencies.outputs.cache-hit != 'true'
       run: bundle install --jobs 20 --retry 5
     - name: Lint files
       run: bundle exec rubocop
+
   test:
     runs-on: ubuntu-latest
     steps:
@@ -28,6 +38,12 @@ jobs:
     - uses: ruby/setup-ruby@v1
       with:
         ruby-version: 2.6.6
+    - name: Cache dependencies
+      id: cache-dependencies
+      uses: actions/cache@v2
+      with:
+        path: ${{ env.BUNDLE_PATH }}
+        key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
     - name: Download test reporter
       run: |
         curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
@@ -35,6 +51,7 @@ jobs:
     - name: Notify of pending report
       run: ./cc-test-reporter before-build
     - name: Install dependencies
+      if: steps.cache-dependencies.outputs.cache-hit != 'true'
       run: bundle install --jobs 20 --retry 5
     - name: Run tests
       run: bundle exec rspec
