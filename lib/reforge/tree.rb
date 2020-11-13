@@ -20,7 +20,7 @@ module Reforge
         initialize_root(path[0])
       else
         initialize_root(path[0]) if root.nil?
-        add_nodes(*path)
+        attach_nodes(*path)
       end
 
       nil
@@ -50,13 +50,13 @@ module Reforge
       @root = create_node(path_part)
     end
 
-    def add_nodes(*path, extractor)
+    def attach_nodes(*path, extractor)
       node = root
 
       # TRICKY: we need two contiguous steps in the path to create and attach a node. The first tells where on the
       # parent node to attach the new node, and the second allows us to infer which type of node we need to attach.
       #
-      # As an example, in add_nodes(:foo, 0, :bar, extractor) the pair of steps [:foo, 0] would tell us we need to
+      # As an example, in attach_nodes(:foo, 0, :bar, extractor) the pair of steps [:foo, 0] would tell us we need to
       # attach an ArrayNode (inferred by 0) at root's :foo index. We then move to [0, :bar], which tell us we need to
       # attach a HashNode (inferred by :bar) at the ArrayNode's 0 index. Finally we move to [:bar, extractor], which
       # tells us to attach an ExtractorNode (inferred by extractor) at the HashNode's :bar index
