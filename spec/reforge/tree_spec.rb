@@ -39,6 +39,16 @@ RSpec.describe Reforge::Tree do
           expect { attach_extractor }.to raise_error ArgumentError, "The key must be a Symbol"
         end
       end
+
+      context "when the extractor would take the spot of an existing node" do
+        subject(:attach_extractor) { instance.attach_extractor(:bar, extractor) }
+
+        # TODO: this error is raised by the node without knowledge of the surrounding context. The error should be
+        # made context-sensitive so that the problem is more obvious
+        it "raises a NodeRedefinitionError" do
+          expect { attach_extractor }.to raise_error Reforge::Tree::NodeRedefinitionError, "A node already exists at key 'bar'"
+        end
+      end
     end
 
     context "when the path consists of only an extractor" do
@@ -53,7 +63,7 @@ RSpec.describe Reforge::Tree do
         before { instance.attach_extractor(:foo, 0, extractor) }
 
         it "raises a PathRedefinitionError" do
-          expect { attach_extractor }.to raise_error Reforge::Tree::PathRedefinitionError, "The root has already been defined"
+          expect { attach_extractor }.to raise_error Reforge::Tree::NodeRedefinitionError, "The root node has already been defined"
         end
       end
     end

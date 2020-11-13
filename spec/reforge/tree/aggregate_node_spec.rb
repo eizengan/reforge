@@ -86,6 +86,14 @@ RSpec.describe Reforge::Tree::AggregateNode do
         expect { set_element }.to raise_error ArgumentError, "The key must be a String"
       end
     end
+
+    context "when a node already exists at the given key" do
+      before { instance[:key] = described_class.new(Symbol) }
+
+      it "raises an NodeRedefinitionError" do
+        expect { set_element }.to raise_error Reforge::Tree::NodeRedefinitionError, "A node already exists at key 'key'"
+      end
+    end
   end
 
   describe "#[]" do

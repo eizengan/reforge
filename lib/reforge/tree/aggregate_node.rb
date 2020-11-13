@@ -26,6 +26,7 @@ module Reforge
       def []=(key, node)
         validate_node!(node)
         validate_key!(key)
+        validate_no_redefinition!(key)
 
         implementation.children[key] = node
       end
@@ -56,6 +57,12 @@ module Reforge
         return if key.is_a?(@key_type)
 
         raise ArgumentError, "The key must be a #{@key_type}"
+      end
+
+      def validate_no_redefinition!(key)
+        return if implementation.children[key].nil?
+
+        raise NodeRedefinitionError, "A node already exists at key '#{key}'"
       end
     end
   end

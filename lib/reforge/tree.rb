@@ -2,7 +2,7 @@
 
 module Reforge
   class Tree
-    class PathRedefinitionError < StandardError; end
+    class NodeRedefinitionError < StandardError; end
     class PathPartError < StandardError; end
 
     attr_reader :root
@@ -45,12 +45,12 @@ module Reforge
     end
 
     def initialize_root(path_part)
-      raise PathRedefinitionError, "The root has already been defined" unless root.nil?
+      raise NodeRedefinitionError, "The root node has already been defined" unless root.nil?
 
       @root = create_node(path_part)
     end
 
-    def add_nodes(*path)
+    def add_nodes(*path, extractor)
       node = root
 
       # TRICKY: we need two contiguous steps in the path to create and attach a node. The first tells where on the
@@ -61,12 +61,16 @@ module Reforge
       # attach a HashNode (inferred by :bar) at the ArrayNode's 0 index. Finally we move to [:bar, extractor], which
       # tells us to attach an ExtractorNode (inferred by extractor) at the HashNode's :bar index
       #
-      # To fulfill this requirement we turn the arguments to this method into offset arrays and zip them together
+      # To fulfill this requirement we turn the arguments to this method into offset arrays and zip them together. Use
+      # of ||= is inappropriate during ExtractorNode attachment because it will not attempt to create and attach the
+      # node if a child with the same key already exists, so we just use = below
       parent_path_parts = path[0..-2]
       child_path_parts = path[1..]
       parent_path_parts.zip(child_path_parts).each do |parent_path_part, child_path_part|
         node = node[parent_path_part] ||= create_node(child_path_part)
       end
+
+      node[path[-1]] = create_node(extractor)
     end
 
     def create_node(path_part)
