@@ -39,11 +39,17 @@ jobs:
     - name: Run tests
       run: bundle exec rspec
     - name: Publish code coverage
+      # TRICKY: We need to manually set the env vars required by Code Climate. GIT_BRANCH is simple to determine, but
+      # GIT_COMMIT_SHA is context dependent:
+      # - When running actions on main when it is pushed we can simply use GITHUB_SHA
+      # - When running actions on a pull request actions/checkout@v2 creates a merge commit, so GITHUB_SHA is one
+      #   commit ahead. We use the log to determine GIT_COMMIT_SHA by looking at the second parent of the merge commit,
+      #   and set actions/checkout@v2's fetch-depth to 2 above to ensure that the commit is available
+      # (ref: https://docs.codeclimate.com/docs/github-actions-test-coverage)
       run: |
         export GIT_BRANCH="${GITHUB_HEAD_REF}"
         if [ $GITHUB_EVENT_NAME == "pull_request" ]
         then
-          # during a PR actions/checkout@v2 creates a merge commit - head SHA is actually the second parent
           export GIT_COMMIT_SHA="$(git log --pretty=%P -n 1 "${GITHUB_SHA}" | cut -d' ' -f2)"
         else
           export GIT_COMMIT_SHA="${GITHUB_SHA}"
