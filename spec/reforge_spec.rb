@@ -1,17 +1,6 @@
 # frozen_string_literal: true
 
 RSpec.describe Reforge do
-  # TODO: better way to clean class instance vars between tests to avoid pollution
-  def clear_instance_variable(object, instance_variable)
-    object.remove_instance_variable(instance_variable) if object.instance_variable_defined?(instance_variable)
-  end
-
-  around do |example|
-    clear_instance_variable(described_class, :@configuration)
-    example.run
-    clear_instance_variable(described_class, :@configuration)
-  end
-
   describe ".configure" do
     before { allow(described_class).to receive(:configuration).and_return(:configuration) }
 
