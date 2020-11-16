@@ -5,116 +5,101 @@ RSpec.describe Reforge::Transform do
 
   let(:args) { { transform: { key: :key } } }
 
-  describe "#call" do
-    subject(:call) { instance.call(:source) }
+  context "when initialized with an invalid transform" do
+    let(:args) { { transform: 5 } }
 
-    let(:transform) { instance_double(Proc) }
-
-    before do
-      allow(instance).to receive(:transform).and_return(transform)
-      allow(transform).to receive(:call).and_return(:transformed_value)
-    end
-
-    it "delegates to the transform" do
-      expect(call).to be :transformed_value
-      expect(transform).to have_received(:call).once.with(:source)
+    it "raises an ArgumentError during initialization" do
+      expect { instance }.to raise_error ArgumentError, "The transform must be callable or a configuration hash"
     end
   end
 
-  describe "#transform" do
-    subject(:transform) { instance.transform }
+  context "when the memoize option is supplied" do
+    let(:args) { { transform: proc, memoize: memoize } }
+    let(:proc) { ->(v) { v.to_s } }
+    let(:memoize) { nil }
 
-    context "when initialized with an invalid transform" do
-      let(:args) { { transform: 5 } }
+    context "when memoize is invalid" do
+      let(:memoize) { 10 }
 
       it "raises an ArgumentError during initialization" do
-        expect { instance }.to raise_error ArgumentError, "The transform must be callable or a configuration hash"
+        expect { instance }.to raise_error ArgumentError, "The memoize option must be true, false, or a configuration hash"
       end
     end
 
+    context "when memoize is true" do
+      let(:memoize) { true }
+
+      before { allow(described_class::MemoizedTransform).to receive(:new).and_return(:memoized_transform) }
+
+      it "sets a memoized version of the transform" do
+        expect(instance.transform).to be :memoized_transform
+        expect(described_class::MemoizedTransform).to have_received(:new).once.with(proc)
+      end
+    end
+
+    context "when memoize is an invalid configuration hash" do
+      let(:memoize) { { by: 10 } }
+
+      it "raises an ArgumentError during initialization" do
+        expect { instance }.to raise_error ArgumentError, "The :by option of the configuration hash must be callable"
+      end
+    end
+
+    context "when memoize is a valid configuration hash" do
+      let(:memoize) { { by: ->(v) { v.to_s } } }
+
+      before { allow(described_class::MemoizedTransform).to receive(:new).and_return(:memoized_transform) }
+
+      it "sets a configured, memoized version of the transform" do
+        expect(instance.transform).to be :memoized_transform
+        expect(described_class::MemoizedTransform).to have_received(:new).once.with(proc, memoize)
+      end
+    end
+  end
+
+  describe "#call" do
+    subject(:call) { instance.call(source) }
+
+    let(:source) { { foo: :bar } }
+
+    before do
+      allow(instance.transform).to receive(:call).and_call_original
+    end
+
     context "when initialized with an attribute config hash" do
-      let(:args) { { transform: { attribute: :attr } } }
+      let(:args) { { transform: { attribute: :size } } }
 
-      before { allow(described_class).to receive(:attribute_transform_for).and_return(:the_transform) }
-
-      it "forwards args to create the expected transform" do
-        expect(transform).to be :the_transform
-        expect(described_class).to have_received(:attribute_transform_for).once.with(:attr)
+      it "delegates to the transform to return the expected attribute from the source" do
+        expect(call).to be 1
+        expect(instance.transform).to have_received(:call).once.with(source)
       end
     end
 
     context "when initialized with a key config hash" do
-      let(:args) { { transform: { key: :key } } }
+      let(:args) { { transform: { key: :foo } } }
 
-      before { allow(described_class).to receive(:key_transform_for).and_return(:the_transform) }
-
-      it "forwards args to create the expected transform" do
-        expect(transform).to be :the_transform
-        expect(described_class).to have_received(:key_transform_for).once.with(:key)
+      it "delegates to the transform to return the source's value at the given key" do
+        expect(call).to be :bar
+        expect(instance.transform).to have_received(:call).once.with(source)
       end
     end
 
     context "when initialized with a value config hash" do
       let(:args) { { transform: { value: :val } } }
 
-      before { allow(described_class).to receive(:value_transform_for).and_return(:the_transform) }
-
-      it "forwards args to create the expected transform" do
-        expect(transform).to be :the_transform
-        expect(described_class).to have_received(:value_transform_for).once.with(:val)
+      it "delegates to the transform to return the expected value" do
+        expect(call).to be :val
+        expect(instance.transform).to have_received(:call).once.with(source)
       end
     end
 
     context "when initialized with a Proc" do
       let(:args) { { transform: proc } }
-      let(:proc) { instance_double(Proc) }
+      let(:proc) { ->(s) { s.transform_values(&:to_s) } }
 
-      it "returns the given proc" do
-        expect(proc).to be proc
-      end
-    end
-
-    context "when transform is valid and the memoize option is supplied" do
-      let(:args) { { transform: proc, memoize: memoize } }
-      let(:proc) { ->(v) { v.to_s } }
-      let(:memoize) { nil }
-
-      context "when memoize is invalid" do
-        let(:memoize) { 10 }
-
-        it "raises an ArgumentError during initialization" do
-          expect { instance }.to raise_error ArgumentError, "The memoize option must be true, false, or a configuration hash"
-        end
-      end
-
-      context "when memoize is true" do
-        let(:memoize) { true }
-
-        before { allow(described_class::MemoizedTransform).to receive(:new).and_return(:memoized_transform) }
-
-        it "sets a memoized version of the transform" do
-          expect(transform).to be :memoized_transform
-          expect(described_class::MemoizedTransform).to have_received(:new).once.with(proc)
-        end
-      end
-
-      context "when memoize is an invalid configuration hash" do
-        let(:memoize) { { by: 10 } }
-
-        it "raises an ArgumentError during initialization" do
-          expect { instance }.to raise_error ArgumentError, "The :by option of the configuration hash must be callable"
-        end
-      end
-
-      context "when memoize is a valid configuration hash" do
-        let(:memoize) { { by: ->(v) { v.to_s } } }
-
-        before { allow(described_class::MemoizedTransform).to receive(:new).and_return(:memoized_transform) }
-
-        it "sets a configured, memoized version of the transform" do
-          expect(transform).to be :memoized_transform
-          expect(described_class::MemoizedTransform).to have_received(:new).once.with(proc, memoize)
-        end
+      it "delegates to the transform" do
+        expect(call).to eq({ foo: "bar" })
+        expect(instance.transform).to have_received(:call).once.with(source)
       end
     end
   end
