@@ -44,20 +44,20 @@ RSpec.describe Reforge::Tree::AggregateNode do
     context "when initialized with an unknown key_type" do
       let(:key_type) { Range }
 
-      it "raises an ExtractorTypeError error during initialization" do
+      it "raises an AggregateNodeTypeError error during initialization" do
         expect { instance }.to raise_error described_class::AggregateNodeTypeError, "No AggregateNode implementation for key_type Range"
       end
     end
   end
 
-  describe "#reforge" do
-    subject(:reforge) { instance.reforge(:source) }
+  describe "#call" do
+    subject(:call) { instance.call(:source) }
 
-    before { allow(instance.implementation).to receive(:reforge).and_return(:result) }
+    before { allow(instance.implementation).to receive(:call).and_return(:result) }
 
     it "delegates to its implementation" do
-      expect(reforge).to eq :result
-      expect(instance.implementation).to have_received(:reforge).once.with(:source)
+      expect(call).to eq :result
+      expect(instance.implementation).to have_received(:call).once.with(:source)
     end
   end
 
@@ -71,11 +71,11 @@ RSpec.describe Reforge::Tree::AggregateNode do
       expect { set_element }.to change { instance[:key] }.from(nil).to(node)
     end
 
-    context "when the node is not a AggregateNode or ExtractorNode" do
+    context "when the node is not a AggregateNode or TransformNode" do
       let(:node) { :not_a_node }
 
       it "raises an ArgumentError" do
-        expect { set_element }.to raise_error ArgumentError, "The node must be a Reforge::AggregateNode or Reforge::ExtractorNode"
+        expect { set_element }.to raise_error ArgumentError, "The node must be a Reforge::AggregateNode or Reforge::TransformNode"
       end
     end
 

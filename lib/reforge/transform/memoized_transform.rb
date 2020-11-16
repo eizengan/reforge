@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Reforge
-  class Extractor
+  class Transform
     class MemoizedTransform
       def initialize(transform, **memoize_configuration)
         validate_transform!(transform)

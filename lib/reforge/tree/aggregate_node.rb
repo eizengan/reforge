@@ -19,8 +19,8 @@ module Reforge
         @key_type = key_type
       end
 
-      def reforge(source)
-        implementation.reforge(source)
+      def call(source)
+        implementation.call(source)
       end
 
       def []=(key, node)
@@ -48,9 +48,9 @@ module Reforge
       end
 
       def validate_node!(node)
-        return if node.is_a?(AggregateNode) || node.is_a?(ExtractorNode)
+        return if node.is_a?(AggregateNode) || node.is_a?(TransformNode)
 
-        raise ArgumentError, "The node must be a Reforge::AggregateNode or Reforge::ExtractorNode"
+        raise ArgumentError, "The node must be a Reforge::AggregateNode or Reforge::TransformNode"
       end
 
       def validate_key!(key)

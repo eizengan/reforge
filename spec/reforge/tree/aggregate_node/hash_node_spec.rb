@@ -11,8 +11,8 @@ RSpec.describe Reforge::Tree::AggregateNode::HashNode do
     end
   end
 
-  describe "#reforge" do
-    subject(:reforge) { instance.reforge(:source) }
+  describe "#call" do
+    subject(:call) { instance.call(:source) }
 
     let(:children) { { child_1: child_1, child_2: child_2 } }
     let(:child_1) { instance_double(described_class) }
@@ -20,14 +20,14 @@ RSpec.describe Reforge::Tree::AggregateNode::HashNode do
 
     before do
       allow(instance).to receive(:children).and_return(children)
-      allow(child_1).to receive(:reforge).and_return(:result_1)
-      allow(child_2).to receive(:reforge).and_return(:result_2)
+      allow(child_1).to receive(:call).and_return(:result_1)
+      allow(child_2).to receive(:call).and_return(:result_2)
     end
 
     it "delegates to its children to create the expected hash" do
-      expect(reforge).to eq(child_1: :result_1, child_2: :result_2)
-      expect(child_1).to have_received(:reforge).with(:source)
-      expect(child_2).to have_received(:reforge).with(:source)
+      expect(call).to eq(child_1: :result_1, child_2: :result_2)
+      expect(child_1).to have_received(:call).with(:source)
+      expect(child_2).to have_received(:call).with(:source)
     end
   end
 end
