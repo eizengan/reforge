@@ -10,9 +10,9 @@ module Reforge
           @children = []
         end
 
-        def reforge(source)
+        def call(source)
           # TRICKY: holes can be present, e.g. at key 1 after setting children at keys 0 and 2
-          children.map { |child| child&.reforge(source) }
+          children.map { |child| child&.call(source) }
         end
       end
     end

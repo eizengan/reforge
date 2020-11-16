@@ -10,8 +10,8 @@ module Reforge
           @children = {}
         end
 
-        def reforge(source)
-          children.transform_values { |child| child.reforge(source) }
+        def call(source)
+          children.transform_values { |child| child.call(source) }
         end
       end
     end
