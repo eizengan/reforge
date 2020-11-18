@@ -23,6 +23,7 @@ jobs:
       with:
         path: ${{ env.BUNDLE_PATH }}
         key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+        restore-keys:  ${{ runner.os }}-gems-
     - name: Install dependencies
       if: steps.cache-dependencies.outputs.cache-hit != 'true'
       run: bundle install --jobs 20 --retry 5
@@ -44,6 +45,7 @@ jobs:
       with:
         path: ${{ env.BUNDLE_PATH }}
         key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+        restore-keys:  ${{ runner.os }}-gems-
     - name: Download test reporter
       run: |
         curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
