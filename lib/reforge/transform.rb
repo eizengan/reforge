@@ -7,7 +7,7 @@ module Reforge
       key: ->(key) { key_transform_for(key) },
       value: ->(value) { value_transform_for(value) }
     }.freeze
-    ALLOWED_COMMON_TRANSFORMS = COMMON_TRANSFORMS.keys
+    ALLOWED_COMMON_TRANSFORM_TYPES = COMMON_TRANSFORMS.keys.freeze
 
     def self.attribute_transform_for(attribute)
       ->(source) { source.send(attribute) }
@@ -44,7 +44,7 @@ module Reforge
     end
 
     def transform_configuration_hash?(transform)
-      transform.is_a?(Hash) && transform.size == 1 && ALLOWED_COMMON_TRANSFORMS.include?(transform.keys[0])
+      transform.is_a?(Hash) && transform.size == 1 && ALLOWED_COMMON_TRANSFORM_TYPES.include?(transform.keys[0])
     end
 
     def validate_memoize!(memoize)
