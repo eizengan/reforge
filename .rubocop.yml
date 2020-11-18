@@ -3,6 +3,8 @@ require: rubocop-performance
 # overrides
 Style/Documentation:
   Enabled: false
+Style/MutableConstant:
+  EnforcedStyle: strict
 Style/StringLiterals:
   EnforcedStyle: double_quotes
 
