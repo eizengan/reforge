@@ -1,6 +1,6 @@
 # Reforge
 
-[![Gem Version](https://badge.fury.io/rb/reforge.svg)](https://badge.fury.io/rb/reforge)
+[![Actions Status](https://github.com/eizengan/reforge/workflows/CI/badge.svg)](https://github.com/eizengan/reforge/actions)
 [![Maintainability](https://api.codeclimate.com/v1/badges/ca2883109cdb44f8cc9e/maintainability)](https://codeclimate.com/github/eizengan/reforge/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/ca2883109cdb44f8cc9e/test_coverage)](https://codeclimate.com/github/eizengan/reforge/test_coverage)
 
