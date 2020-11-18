@@ -3,18 +3,18 @@
 module Reforge
   class Transform
     COMMON_TRANSFORMS = {
-      attribute: ->(attribute) { attribute_transform_for(attribute) },
-      key: ->(key) { key_transform_for(key) },
+      attribute: ->(*attributes) { attribute_transform_for(*attributes) },
+      key: ->(*keys) { key_transform_for(*keys) },
       value: ->(value) { value_transform_for(value) }
     }.freeze
     ALLOWED_COMMON_TRANSFORM_TYPES = COMMON_TRANSFORMS.keys.freeze
 
-    def self.attribute_transform_for(attribute)
-      ->(source) { source.send(attribute) }
+    def self.attribute_transform_for(*attributes)
+      ->(source) { attributes.reduce(source) { |object, attribute| object.send(attribute) } }
     end
 
-    def self.key_transform_for(key)
-      ->(source) { source[key] }
+    def self.key_transform_for(*keys)
+      ->(source) { keys.reduce(source) { |object, key| object[key] } } # rubocop:disable Lint/UnmodifiedReduceAccumulator
     end
 
     def self.value_transform_for(value)
@@ -54,7 +54,7 @@ module Reforge
     end
 
     def transform_from_config_hash(config)
-      config.map { |type, arg| COMMON_TRANSFORMS[type].call(arg) }.first
+      config.map { |type, arg| COMMON_TRANSFORMS[type].call(*arg) }.first
     end
 
     def create_transform(transform, memoize)

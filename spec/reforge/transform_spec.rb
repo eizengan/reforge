@@ -73,6 +73,15 @@ RSpec.describe Reforge::Transform do
         expect(call).to be 1
         expect(instance.transform).to have_received(:call).once.with(source)
       end
+
+      context "when initialized with multiple attributes" do
+        let(:args) { { transform: { attribute: %i[size to_s] } } }
+
+        it "delegates to the transform to return the source's value at the given attributes" do
+          expect(call).to eq "1"
+          expect(instance.transform).to have_received(:call).once.with(source)
+        end
+      end
     end
 
     context "when initialized with a key config hash" do
@@ -81,6 +90,16 @@ RSpec.describe Reforge::Transform do
       it "delegates to the transform to return the source's value at the given key" do
         expect(call).to be :bar
         expect(instance.transform).to have_received(:call).once.with(source)
+      end
+
+      context "when initialized with multiple keys" do
+        let(:source) { { foo: { bar: :baz } } }
+        let(:args) { { transform: { key: %i[foo bar] } } }
+
+        it "delegates to the transform to return the source's value at the given keys" do
+          expect(call).to be :baz
+          expect(instance.transform).to have_received(:call).once.with(source)
+        end
       end
     end
 
