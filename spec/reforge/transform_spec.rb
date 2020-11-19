@@ -9,7 +9,15 @@ RSpec.describe Reforge::Transform do
     let(:args) { { transform: 5 } }
 
     it "raises an ArgumentError during initialization" do
-      expect { instance }.to raise_error ArgumentError, "The transform must be callable or a configuration hash"
+      expect { instance }.to raise_error ArgumentError, "The transform must be callable"
+    end
+  end
+
+  context "when initialized with an invalid configuration hash" do
+    let(:args) { { transform: { valyoo: 5 } } }
+
+    it "raises an ArgumentError during initialization" do
+      expect { instance }.to raise_error ArgumentError, "The transform configuration hash is not a valid"
     end
   end
 
@@ -74,12 +82,48 @@ RSpec.describe Reforge::Transform do
         expect(instance.transform).to have_received(:call).once.with(source)
       end
 
+      context "when called on a nil value" do
+        let(:source) { nil }
+
+        it "raises a NoMethodError when delegating to the transform" do
+          expect { call }.to raise_error NoMethodError, "undefined method `size' for nil:NilClass"
+          expect(instance.transform).to have_received(:call).once.with(source)
+        end
+
+        context "when 'allow_nil: true' was supplied as an option" do
+          let(:args) { { transform: { attribute: :size, allow_nil: true } } }
+
+          it "delegates to the transform and returns nil" do
+            expect(call).to be_nil
+            expect(instance.transform).to have_received(:call).once.with(source)
+          end
+        end
+      end
+
       context "when initialized with multiple attributes" do
         let(:args) { { transform: { attribute: %i[size to_s] } } }
 
         it "delegates to the transform to return the source's value at the given attributes" do
           expect(call).to eq "1"
           expect(instance.transform).to have_received(:call).once.with(source)
+        end
+
+        context "when called on a nil value" do
+          let(:source) { nil }
+
+          it "raises a NoMethodError when delegating to the transform" do
+            expect { call }.to raise_error NoMethodError, "undefined method `size' for nil:NilClass"
+            expect(instance.transform).to have_received(:call).once.with(source)
+          end
+
+          context "when 'allow_nil: true' was supplied as an option" do
+            let(:args) { { transform: { attribute: %i[size to_s], allow_nil: true } } }
+
+            it "delegates to the transform and returns nil" do
+              expect(call).to be_nil
+              expect(instance.transform).to have_received(:call).once.with(source)
+            end
+          end
         end
       end
     end
@@ -92,6 +136,24 @@ RSpec.describe Reforge::Transform do
         expect(instance.transform).to have_received(:call).once.with(source)
       end
 
+      context "when called on a nil value" do
+        let(:source) { nil }
+
+        it "raises a NoMethodError when delegating to the transform" do
+          expect { call }.to raise_error NoMethodError, "undefined method `[]' for nil:NilClass"
+          expect(instance.transform).to have_received(:call).once.with(source)
+        end
+
+        context "when 'allow_nil: true' was supplied as an option" do
+          let(:args) { { transform: { key: :foo, allow_nil: true } } }
+
+          it "delegates to the transform and returns nil" do
+            expect(call).to be_nil
+            expect(instance.transform).to have_received(:call).once.with(source)
+          end
+        end
+      end
+
       context "when initialized with multiple keys" do
         let(:source) { { foo: { bar: :baz } } }
         let(:args) { { transform: { key: %i[foo bar] } } }
@@ -99,6 +161,24 @@ RSpec.describe Reforge::Transform do
         it "delegates to the transform to return the source's value at the given keys" do
           expect(call).to be :baz
           expect(instance.transform).to have_received(:call).once.with(source)
+        end
+
+        context "when called on a nil value" do
+          let(:source) { nil }
+
+          it "raises a NoMethodError when delegating to the transform" do
+            expect { call }.to raise_error NoMethodError, "undefined method `[]' for nil:NilClass"
+            expect(instance.transform).to have_received(:call).once.with(source)
+          end
+
+          context "when 'allow_nil: true' was supplied as an option" do
+            let(:args) { { transform: { key: %i[foo bar], allow_nil: true } } }
+
+            it "delegates to the transform and returns nil" do
+              expect(call).to be_nil
+              expect(instance.transform).to have_received(:call).once.with(source)
+            end
+          end
         end
       end
     end
