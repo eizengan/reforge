@@ -2,7 +2,7 @@
 
 module Reforge
   class Transform
-    module Helpers
+    module Factories
       TRANSFORM_PROC_FACTORIES = {
         attribute: ->(*attributes, **opts) { attribute_transform_for(*attributes, **opts) },
         key: ->(*keys, **opts) { key_transform_for(*keys, **opts) },

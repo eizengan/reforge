@@ -4,7 +4,7 @@ module Reforge
   class Transform
     attr_reader :transform
 
-    include Helpers
+    include Factories
 
     def initialize(transform:, memoize: nil)
       transform = proc_from_configuration_hash(transform) if transform.is_a?(Hash)
