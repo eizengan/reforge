@@ -90,8 +90,8 @@ RSpec.describe Reforge::Transform do
           expect(instance.transform).to have_received(:call).once.with(source)
         end
 
-        context "when 'allow_nil: true' was supplied as an option" do
-          let(:args) { { transform: { attribute: :size, allow_nil: true } } }
+        context "when 'propogate_nil: true' was supplied as an option" do
+          let(:args) { { transform: { attribute: :size, propogate_nil: true } } }
 
           it "delegates to the transform and returns nil" do
             expect(call).to be_nil
@@ -116,8 +116,8 @@ RSpec.describe Reforge::Transform do
             expect(instance.transform).to have_received(:call).once.with(source)
           end
 
-          context "when 'allow_nil: true' was supplied as an option" do
-            let(:args) { { transform: { attribute: %i[size to_s], allow_nil: true } } }
+          context "when 'propogate_nil: true' was supplied as an option" do
+            let(:args) { { transform: { attribute: %i[size to_s], propogate_nil: true } } }
 
             it "delegates to the transform and returns nil" do
               expect(call).to be_nil
@@ -144,8 +144,8 @@ RSpec.describe Reforge::Transform do
           expect(instance.transform).to have_received(:call).once.with(source)
         end
 
-        context "when 'allow_nil: true' was supplied as an option" do
-          let(:args) { { transform: { key: :foo, allow_nil: true } } }
+        context "when 'propogate_nil: true' was supplied as an option" do
+          let(:args) { { transform: { key: :foo, propogate_nil: true } } }
 
           it "delegates to the transform and returns nil" do
             expect(call).to be_nil
@@ -171,8 +171,8 @@ RSpec.describe Reforge::Transform do
             expect(instance.transform).to have_received(:call).once.with(source)
           end
 
-          context "when 'allow_nil: true' was supplied as an option" do
-            let(:args) { { transform: { key: %i[foo bar], allow_nil: true } } }
+          context "when 'propogate_nil: true' was supplied as an option" do
+            let(:args) { { transform: { key: %i[foo bar], propogate_nil: true } } }
 
             it "delegates to the transform and returns nil" do
               expect(call).to be_nil

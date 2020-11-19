@@ -10,16 +10,16 @@ module Reforge
       }.freeze
       TRANSFORM_TYPES = TRANSFORM_PROC_FACTORIES.keys.freeze
 
-      private_class_method def self.attribute_transform_for(*attributes, allow_nil: false)
-        recursive_method_call(:send, *attributes, allow_nil: allow_nil)
+      private_class_method def self.attribute_transform_for(*attributes, propogate_nil: false)
+        recursive_method_call(:send, *attributes, propogate_nil: propogate_nil)
       end
 
-      private_class_method def self.key_transform_for(*keys, allow_nil: false)
-        recursive_method_call(:[], *keys, allow_nil: allow_nil)
+      private_class_method def self.key_transform_for(*keys, propogate_nil: false)
+        recursive_method_call(:[], *keys, propogate_nil: propogate_nil)
       end
 
-      private_class_method def self.recursive_method_call(method, *arguments, allow_nil: false)
-        if allow_nil
+      private_class_method def self.recursive_method_call(method, *arguments, propogate_nil: false)
+        if propogate_nil
           ->(source) { arguments.reduce(source) { |object, argument| object&.send(method, argument) } }
         else
           ->(source) { arguments.reduce(source) { |object, argument| object.send(method, argument) } }
