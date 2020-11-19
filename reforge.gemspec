@@ -43,4 +43,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rubocop", "~> 1.0"
   spec.add_development_dependency "rubocop-performance", "~> 1.8"
   spec.add_development_dependency "simplecov", "~> 0.17.1" # 0.18 breaks Code Climate. Ref: https://github.com/codeclimate/test-reporter/issues/413
+  spec.add_development_dependency "super_diff", "~> 0.5"
 end

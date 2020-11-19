@@ -6,6 +6,7 @@ SimpleCov.start
 require "bundler/setup"
 require "pry-byebug"
 require "reforge"
+require "super_diff/rspec"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
