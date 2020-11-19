@@ -10,12 +10,25 @@ module Reforge
       }.freeze
       TRANSFORM_TYPES = TRANSFORM_PROC_FACTORIES.keys.freeze
 
+      def proc_from_configuration_hash(config)
+        validate_config!(config)
+
+        type = config.keys.detect { |key| TRANSFORM_TYPES.include?(key) }
+        args = config.delete(type)
+
+        TRANSFORM_PROC_FACTORIES[type].call(*args, **config)
+      end
+
       private_class_method def self.attribute_transform_for(*attributes, propogate_nil: false)
         recursive_method_call(:send, *attributes, propogate_nil: propogate_nil)
       end
 
       private_class_method def self.key_transform_for(*keys, propogate_nil: false)
         recursive_method_call(:[], *keys, propogate_nil: propogate_nil)
+      end
+
+      private_class_method def self.value_transform_for(value)
+        ->(_source) { value }
       end
 
       private_class_method def self.recursive_method_call(method, *arguments, propogate_nil: false)
@@ -26,25 +39,12 @@ module Reforge
         end
       end
 
-      private_class_method def self.value_transform_for(value)
-        ->(_source) { value }
-      end
-
-      def proc_from_configuration_hash(config)
-        validate_config!(config)
-
-        type = config.keys.detect { |key| TRANSFORM_TYPES.include?(key) }
-        args = config.delete(type)
-
-        TRANSFORM_PROC_FACTORIES[type].call(*args, **config)
-      end
-
       private
 
       def validate_config!(config)
         return if config.is_a?(Hash) && config.keys.count { |key| TRANSFORM_TYPES.include?(key) } == 1
 
-        raise ArgumentError, "The transform configuration hash is not a valid"
+        raise ArgumentError, "The transform configuration hash must define exactly one transform type"
       end
     end
   end

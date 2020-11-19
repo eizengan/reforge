@@ -17,7 +17,7 @@ RSpec.describe Reforge::Transform do
     let(:args) { { transform: { valyoo: 5 } } }
 
     it "raises an ArgumentError during initialization" do
-      expect { instance }.to raise_error ArgumentError, "The transform configuration hash is not a valid"
+      expect { instance }.to raise_error ArgumentError, "The transform configuration hash must define exactly one transform type"
     end
   end
 
