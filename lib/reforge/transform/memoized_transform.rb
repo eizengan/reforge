@@ -3,11 +3,11 @@
 module Reforge
   class Transform
     class MemoizedTransform
-      def initialize(transform, **memoize_configuration)
+      def initialize(transform, **config)
         validate_transform!(transform)
 
         @transform = transform
-        @memo_key_transform = memo_key_transform_from(memoize_configuration[:by])
+        @memo_key_transform = memo_key_transform_from(config[:by])
         @memo = {}
       end
 

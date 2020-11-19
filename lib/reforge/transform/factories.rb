@@ -4,13 +4,13 @@ module Reforge
   class Transform
     module Factories
       TRANSFORM_PROC_FACTORIES = {
-        attribute: ->(*attributes, **opts) { attribute_transform_for(*attributes, **opts) },
-        key: ->(*keys, **opts) { key_transform_for(*keys, **opts) },
-        value: ->(value, **_opts) { value_transform_for(value) }
+        attribute: ->(*attributes, **config) { attribute_transform_for(*attributes, **config) },
+        key: ->(*keys, **config) { key_transform_for(*keys, **config) },
+        value: ->(value, **_config) { value_transform_for(value) }
       }.freeze
       TRANSFORM_TYPES = TRANSFORM_PROC_FACTORIES.keys.freeze
 
-      def proc_from_configuration_hash(config)
+      def transform_proc_from(config)
         validate_config!(config)
 
         type = config.keys.detect { |key| TRANSFORM_TYPES.include?(key) }

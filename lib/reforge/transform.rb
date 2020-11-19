@@ -7,7 +7,7 @@ module Reforge
     include Factories
 
     def initialize(transform:, memoize: nil)
-      transform = proc_from_configuration_hash(transform) if transform.is_a?(Hash)
+      transform = transform_proc_from(transform) if transform.is_a?(Hash)
 
       validate_transform!(transform)
       validate_memoize!(memoize)
