@@ -41,7 +41,7 @@ RSpec.describe Reforge::Transform do
       let(:memoize) { { by: 10 } }
 
       it "raises an ArgumentError during initialization" do
-        expect { instance }.to raise_error ArgumentError, "The :by option of the configuration hash must be callable"
+        expect { instance }.to raise_error ArgumentError, "The :by option of the configuration hash must be callable or a transform configuration hash"
       end
     end
 
