@@ -28,7 +28,7 @@ jobs:
       if: steps.cache-dependencies.outputs.cache-hit != 'true'
       run: bundle install --jobs 20 --retry 5
     - name: Lint files
-      run: bundle exec rubocop
+      run: bundle exec rake rubocop
 
   test:
     runs-on: ubuntu-latest
@@ -56,7 +56,7 @@ jobs:
       if: steps.cache-dependencies.outputs.cache-hit != 'true'
       run: bundle install --jobs 20 --retry 5
     - name: Run tests
-      run: bundle exec rspec
+      run: bundle exec rake rspec
     - name: Publish code coverage
       # TRICKY: We need to manually set the env vars required by Code Climate. GIT_BRANCH is simple to determine, but
       # GIT_COMMIT_SHA is context dependent:
