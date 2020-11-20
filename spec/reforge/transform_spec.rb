@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 RSpec.describe Reforge::Transform do
-  subject(:instance) { described_class.new(**args) }
+  subject(:instance) { described_class.new(transform, **opts) }
 
-  let(:args) { { transform: { key: :key } } }
+  let(:transform) { { key: :key } }
+  let(:opts) { {} }
 
   context "when initialized with an invalid transform" do
-    let(:args) { { transform: 5 } }
+    let(:transform) { 5 }
 
     it "raises an ArgumentError during initialization" do
       expect { instance }.to raise_error ArgumentError, "The transform must be callable"
@@ -14,7 +15,7 @@ RSpec.describe Reforge::Transform do
   end
 
   context "when initialized with an invalid configuration hash" do
-    let(:args) { { transform: { valyoo: 5 } } }
+    let(:transform) { { valyoo: 5 } }
 
     it "raises an ArgumentError during initialization" do
       expect { instance }.to raise_error ArgumentError, "The transform configuration hash must define exactly one transform type"
@@ -22,8 +23,8 @@ RSpec.describe Reforge::Transform do
   end
 
   context "when the memoize option is supplied" do
-    let(:args) { { transform: proc, memoize: memoize } }
-    let(:proc) { ->(v) { v.to_s } }
+    let(:transform) { ->(v) { v.to_s } }
+    let(:opts) { { memoize: memoize } }
     let(:memoize) { nil }
 
     context "when memoize is invalid" do
@@ -41,7 +42,7 @@ RSpec.describe Reforge::Transform do
 
       it "sets a memoized version of the transform" do
         expect(instance.transform).to be :memoized_transform
-        expect(described_class::MemoizedTransform).to have_received(:new).once.with(proc)
+        expect(described_class::MemoizedTransform).to have_received(:new).once.with(transform)
       end
     end
 
@@ -60,7 +61,7 @@ RSpec.describe Reforge::Transform do
 
       it "sets a configured, memoized version of the transform" do
         expect(instance.transform).to be :memoized_transform
-        expect(described_class::MemoizedTransform).to have_received(:new).once.with(proc, memoize)
+        expect(described_class::MemoizedTransform).to have_received(:new).once.with(transform, memoize)
       end
     end
   end
@@ -75,7 +76,7 @@ RSpec.describe Reforge::Transform do
     end
 
     context "when initialized with an attribute config hash" do
-      let(:args) { { transform: { attribute: :size } } }
+      let(:transform) { { attribute: :size } }
 
       it "delegates to the transform to return the expected attribute from the source" do
         expect(call).to be 1
@@ -91,7 +92,7 @@ RSpec.describe Reforge::Transform do
         end
 
         context "when 'propogate_nil: true' was supplied as an option" do
-          let(:args) { { transform: { attribute: :size, propogate_nil: true } } }
+          let(:transform) { { attribute: :size, propogate_nil: true } }
 
           it "delegates to the transform and returns nil" do
             expect(call).to be_nil
@@ -101,7 +102,7 @@ RSpec.describe Reforge::Transform do
       end
 
       context "when initialized with multiple attributes" do
-        let(:args) { { transform: { attribute: %i[size to_s] } } }
+        let(:transform) { { attribute: %i[size to_s] } }
 
         it "delegates to the transform to return the source's value at the given attributes" do
           expect(call).to eq "1"
@@ -117,7 +118,7 @@ RSpec.describe Reforge::Transform do
           end
 
           context "when 'propogate_nil: true' was supplied as an option" do
-            let(:args) { { transform: { attribute: %i[size to_s], propogate_nil: true } } }
+            let(:transform) { { attribute: %i[size to_s], propogate_nil: true } }
 
             it "delegates to the transform and returns nil" do
               expect(call).to be_nil
@@ -129,7 +130,7 @@ RSpec.describe Reforge::Transform do
     end
 
     context "when initialized with a key config hash" do
-      let(:args) { { transform: { key: :foo } } }
+      let(:transform) { { key: :foo } }
 
       it "delegates to the transform to return the source's value at the given key" do
         expect(call).to be :bar
@@ -145,7 +146,7 @@ RSpec.describe Reforge::Transform do
         end
 
         context "when 'propogate_nil: true' was supplied as an option" do
-          let(:args) { { transform: { key: :foo, propogate_nil: true } } }
+          let(:transform) { { key: :foo, propogate_nil: true } }
 
           it "delegates to the transform and returns nil" do
             expect(call).to be_nil
@@ -156,7 +157,7 @@ RSpec.describe Reforge::Transform do
 
       context "when initialized with multiple keys" do
         let(:source) { { foo: { bar: :baz } } }
-        let(:args) { { transform: { key: %i[foo bar] } } }
+        let(:transform) { { key: %i[foo bar] } }
 
         it "delegates to the transform to return the source's value at the given keys" do
           expect(call).to be :baz
@@ -172,7 +173,7 @@ RSpec.describe Reforge::Transform do
           end
 
           context "when 'propogate_nil: true' was supplied as an option" do
-            let(:args) { { transform: { key: %i[foo bar], propogate_nil: true } } }
+            let(:transform) { { key: %i[foo bar], propogate_nil: true } }
 
             it "delegates to the transform and returns nil" do
               expect(call).to be_nil
@@ -184,7 +185,7 @@ RSpec.describe Reforge::Transform do
     end
 
     context "when initialized with a value config hash" do
-      let(:args) { { transform: { value: :val } } }
+      let(:transform) { { value: :val } }
 
       it "delegates to the transform to return the expected value" do
         expect(call).to be :val
@@ -193,8 +194,7 @@ RSpec.describe Reforge::Transform do
     end
 
     context "when initialized with a Proc" do
-      let(:args) { { transform: proc } }
-      let(:proc) { ->(s) { s.transform_values(&:to_s) } }
+      let(:transform) { ->(s) { s.transform_values(&:to_s) } }
 
       it "delegates to the transform" do
         expect(call).to eq({ foo: "bar" })
