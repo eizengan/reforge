@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 RSpec.describe Reforge::Transform::MemoizedTransform do
-  subject(:instance) { described_class.new(transform, **memoize_configuration) }
+  subject(:instance) { described_class.new(transform, **config) }
 
   let(:transform) { nil }
-  let(:memoize_configuration) { {} }
+  let(:config) { {} }
 
   describe "#call" do
     subject(:call) { instance.call(10) }
@@ -28,7 +28,7 @@ RSpec.describe Reforge::Transform::MemoizedTransform do
     end
 
     context "when the :by option has been specified" do
-      let(:memoize_configuration) { { by: ->(v) { v.to_s[0] } } }
+      let(:config) { { by: ->(v) { v.to_s[0] } } }
 
       it "delegates to the underlying transform" do
         expect(call).to eq "10"
@@ -65,7 +65,7 @@ RSpec.describe Reforge::Transform::MemoizedTransform do
 
   context "when an invalid :by option has been supplied in the configuration hash" do
     let(:transform) { ->(v) { v.to_s } }
-    let(:memoize_configuration) { { by: 10 } }
+    let(:config) { { by: 10 } }
 
     it "raises an ArgumentError during initialization" do
       expect { instance }.to raise_error ArgumentError, "The :by option of the configuration hash must be callable or a transform configuration hash"

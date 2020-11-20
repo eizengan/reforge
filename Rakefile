@@ -9,4 +9,4 @@ RuboCop::RakeTask.new(:rubocop) do |t|
   t.options = ["--parallel"]
 end
 
-task default: :spec
+task default: %i[rubocop rspec]
