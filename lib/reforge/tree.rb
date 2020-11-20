@@ -39,7 +39,7 @@ module Reforge
     end
 
     def validate_path_part!(path_part)
-      return if AggregateNode::ALLOWED_KEY_TYPES.include?(path_part.class)
+      return if AggregateNode::IMPLEMENTATION_TYPES.include?(path_part.class)
 
       raise ArgumentError, "The path includes '#{path_part}' which has unknown key type #{path_part.class}"
     end
@@ -74,7 +74,7 @@ module Reforge
     end
 
     def create_node(path_part)
-      if AggregateNode::ALLOWED_KEY_TYPES.include?(path_part.class)
+      if AggregateNode::IMPLEMENTATION_TYPES.include?(path_part.class)
         AggregateNode.new(path_part.class)
       elsif path_part.is_a?(Transform)
         TransformNode.new(path_part)
