@@ -44,8 +44,8 @@ RSpec.describe Reforge::Tree::AggregateNode do
     context "when initialized with an unknown key_type" do
       let(:key_type) { Range }
 
-      it "raises an AggregateNodeTypeError error during initialization" do
-        expect { instance }.to raise_error described_class::AggregateNodeTypeError, "No AggregateNode implementation for key_type Range"
+      it "raises an ArgumentError error during initialization" do
+        expect { instance }.to raise_error ArgumentError, "No AggregateNode implementation for key_type Range"
       end
     end
   end

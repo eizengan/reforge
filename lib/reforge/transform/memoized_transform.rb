@@ -27,7 +27,7 @@ module Reforge
       def memo_key_transform_from(memoize_by)
         return if memoize_by.nil?
 
-        Transform.new(transform: memoize_by)
+        Transform.new(memoize_by)
       rescue ArgumentError
         # TRICKY: Transform didn't like memoize_by, but we want to raise an error specific to memoize_by, not the
         # one directly from Transform

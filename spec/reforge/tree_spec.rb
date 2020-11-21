@@ -6,7 +6,7 @@ RSpec.describe Reforge::Tree do
   describe "#attach_transform" do
     subject(:attach_transform) { instance.attach_transform(:foo, 0, transform) }
 
-    let(:transform) { Reforge::Transform.new(transform: { value: 0 }) }
+    let(:transform) { Reforge::Transform.new(value: 0) }
 
     it "adds the expected nodes to the tree" do
       expect { attach_transform }.to change { instance.root }.from(nil).to an_instance_of(Reforge::Tree::AggregateNode)
@@ -16,7 +16,7 @@ RSpec.describe Reforge::Tree do
     end
 
     context "when nodes already exist in the tree" do
-      let(:other_transform) { Reforge::Transform.new(transform: { value: 0 }) }
+      let(:other_transform) { Reforge::Transform.new(value: 0) }
 
       before { instance.attach_transform(:bar, other_transform) }
 
@@ -88,10 +88,10 @@ RSpec.describe Reforge::Tree do
   describe "#call" do
     subject(:call) { instance.call(:source) }
 
-    let(:transform_1) { Reforge::Transform.new(transform: { value: :result_1 }) }
-    let(:transform_2) { Reforge::Transform.new(transform: { value: :result_2 }) }
-    let(:transform_3) { Reforge::Transform.new(transform: { value: :result_3 }) }
-    let(:transform_4) { Reforge::Transform.new(transform: { value: :result_4 }) }
+    let(:transform_1) { Reforge::Transform.new(value: :result_1) }
+    let(:transform_2) { Reforge::Transform.new(value: :result_2) }
+    let(:transform_3) { Reforge::Transform.new(value: :result_3) }
+    let(:transform_4) { Reforge::Transform.new(value: :result_4) }
 
     before do
       allow(transform_1).to receive(:call).and_call_original

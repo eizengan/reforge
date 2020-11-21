@@ -3,19 +3,12 @@
 module Reforge
   class Tree
     class AggregateNode
-      class AggregateNodeTypeError < StandardError; end
-
-      IMPLEMENTATIONS = {
-        Integer => ArrayNode,
-        String => HashNode,
-        Symbol => HashNode
-      }.freeze
-      ALLOWED_KEY_TYPES = IMPLEMENTATIONS.keys.freeze
+      include Factories
 
       attr_reader :implementation
 
       def initialize(key_type)
-        @implementation = create_implementation(key_type)
+        @implementation = implementation_from(key_type)
         @key_type = key_type
       end
 
@@ -38,14 +31,6 @@ module Reforge
       end
 
       private
-
-      def create_implementation(key_type)
-        unless IMPLEMENTATIONS.key?(key_type)
-          raise AggregateNodeTypeError, "No AggregateNode implementation for key_type #{key_type}"
-        end
-
-        IMPLEMENTATIONS[key_type].new
-      end
 
       def validate_node!(node)
         return if node.is_a?(AggregateNode) || node.is_a?(TransformNode)

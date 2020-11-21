@@ -2,11 +2,11 @@
 
 module Reforge
   class Transform
-    attr_reader :transform
-
     include Factories
 
-    def initialize(transform:, memoize: nil)
+    attr_reader :transform
+
+    def initialize(transform, memoize: nil)
       transform = transform_proc_from(transform) if transform.is_a?(Hash)
 
       validate_transform!(transform)
