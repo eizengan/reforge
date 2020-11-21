@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Reforge::Transform do
+RSpec.describe Reforge::Transformation::Transform do
   subject(:instance) { described_class.new(transform, **opts) }
 
   let(:transform) { { key: :key } }

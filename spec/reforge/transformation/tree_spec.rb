@@ -1,32 +1,32 @@
 # frozen_string_literal: true
 
-RSpec.describe Reforge::Tree do
+RSpec.describe Reforge::Transformation::Tree do
   subject(:instance) { described_class.new }
 
   describe "#attach_transform" do
     subject(:attach_transform) { instance.attach_transform(:foo, 0, transform) }
 
-    let(:transform) { Reforge::Transform.new(value: 0) }
+    let(:transform) { Reforge::Transformation::Transform.new(value: 0) }
 
     it "adds the expected nodes to the tree" do
-      expect { attach_transform }.to change { instance.root }.from(nil).to an_instance_of(Reforge::Tree::AggregateNode)
-      expect(instance.root[:foo]).to be_an_instance_of(Reforge::Tree::AggregateNode)
-      expect(instance.root[:foo][0]).to be_an_instance_of(Reforge::Tree::TransformNode)
+      expect { attach_transform }.to change { instance.root }.from(nil).to an_instance_of(described_class::AggregateNode)
+      expect(instance.root[:foo]).to be_an_instance_of(described_class::AggregateNode)
+      expect(instance.root[:foo][0]).to be_an_instance_of(described_class::TransformNode)
       expect(instance.root[:foo][0].transform).to be transform
     end
 
     context "when nodes already exist in the tree" do
-      let(:other_transform) { Reforge::Transform.new(value: 0) }
+      let(:other_transform) { Reforge::Transformation::Transform.new(value: 0) }
 
       before { instance.attach_transform(:bar, other_transform) }
 
       it "adds the expected nodes to those already in the tree" do
         expect { attach_transform }.not_to change(instance, :root)
-        expect(instance.root[:bar]).to be_an_instance_of(Reforge::Tree::TransformNode)
+        expect(instance.root[:bar]).to be_an_instance_of(described_class::TransformNode)
         expect(instance.root[:bar].transform).to be other_transform
 
-        expect(instance.root[:foo]).to be_an_instance_of(Reforge::Tree::AggregateNode)
-        expect(instance.root[:foo][0]).to be_an_instance_of(Reforge::Tree::TransformNode)
+        expect(instance.root[:foo]).to be_an_instance_of(described_class::AggregateNode)
+        expect(instance.root[:foo][0]).to be_an_instance_of(described_class::TransformNode)
         expect(instance.root[:foo][0].transform).to be transform
       end
 
@@ -46,7 +46,7 @@ RSpec.describe Reforge::Tree do
         # TODO: this error is raised by the node without knowledge of the surrounding context. The error should be
         # made context-sensitive so that the problem is more obvious
         it "raises a NodeRedefinitionError" do
-          expect { attach_transform }.to raise_error Reforge::Tree::NodeRedefinitionError, "A node already exists at key 'bar'"
+          expect { attach_transform }.to raise_error described_class::NodeRedefinitionError, "A node already exists at key 'bar'"
         end
       end
     end
@@ -55,7 +55,7 @@ RSpec.describe Reforge::Tree do
       subject(:attach_transform) { instance.attach_transform(transform) }
 
       it "adds the expected node to the tree" do
-        expect { attach_transform }.to change { instance.root }.from(nil).to an_instance_of(Reforge::Tree::TransformNode)
+        expect { attach_transform }.to change { instance.root }.from(nil).to an_instance_of(described_class::TransformNode)
         expect(instance.root.transform).to be transform
       end
 
@@ -63,7 +63,7 @@ RSpec.describe Reforge::Tree do
         before { instance.attach_transform(:foo, 0, transform) }
 
         it "raises a PathRedefinitionError" do
-          expect { attach_transform }.to raise_error Reforge::Tree::NodeRedefinitionError, "The root node has already been defined"
+          expect { attach_transform }.to raise_error described_class::NodeRedefinitionError, "The root node has already been defined"
         end
       end
     end
@@ -72,7 +72,7 @@ RSpec.describe Reforge::Tree do
       subject(:attach_transform) { instance.attach_transform(:foo, nil) }
 
       it "raises an ArgumentError" do
-        expect { attach_transform }.to raise_error ArgumentError, "The path must end with a Reforge::Transform"
+        expect { attach_transform }.to raise_error ArgumentError, "The path must end with a Transform"
       end
     end
 
@@ -88,10 +88,10 @@ RSpec.describe Reforge::Tree do
   describe "#call" do
     subject(:call) { instance.call(:source) }
 
-    let(:transform_1) { Reforge::Transform.new(value: :result_1) }
-    let(:transform_2) { Reforge::Transform.new(value: :result_2) }
-    let(:transform_3) { Reforge::Transform.new(value: :result_3) }
-    let(:transform_4) { Reforge::Transform.new(value: :result_4) }
+    let(:transform_1) { Reforge::Transformation::Transform.new(value: :result_1) }
+    let(:transform_2) { Reforge::Transformation::Transform.new(value: :result_2) }
+    let(:transform_3) { Reforge::Transformation::Transform.new(value: :result_3) }
+    let(:transform_4) { Reforge::Transformation::Transform.new(value: :result_4) }
 
     before do
       allow(transform_1).to receive(:call).and_call_original

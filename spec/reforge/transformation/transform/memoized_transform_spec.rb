@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Reforge::Transform::MemoizedTransform do
+RSpec.describe Reforge::Transformation::Transform::MemoizedTransform do
   subject(:instance) { described_class.new(transform, **config) }
 
   let(:transform) { nil }
