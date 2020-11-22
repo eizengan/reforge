@@ -15,7 +15,8 @@ module Reforge
           validate_config!(config)
 
           type = config.keys.detect { |key| TRANSFORM_TYPES.include?(key) }
-          args = config.delete(type)
+          args = config[type]
+          config = config.reject { |k, _v| k == type }
 
           TRANSFORM_PROC_FACTORIES[type].call(*args, **config)
         end

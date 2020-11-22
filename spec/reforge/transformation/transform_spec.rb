@@ -83,6 +83,13 @@ RSpec.describe Reforge::Transformation::Transform do
         expect(instance.transform).to have_received(:call).once.with(source)
       end
 
+      # TRICKY: we need to avoid RSpecs memoization habits to make this test work, so we can't use let or subject to
+      # simplify this
+      it "does not modify the config hash" do
+        hash = { attribute: :size }
+        expect { described_class.new(hash, **opts) }.not_to(change { hash })
+      end
+
       context "when called on a nil value" do
         let(:source) { nil }
 
@@ -135,6 +142,13 @@ RSpec.describe Reforge::Transformation::Transform do
       it "delegates to the transform to return the source's value at the given key" do
         expect(call).to be :bar
         expect(instance.transform).to have_received(:call).once.with(source)
+      end
+
+      # TRICKY: we need to avoid RSpecs memoization habits to make this test work, so we can't use let or subject to
+      # simplify this
+      it "does not modify the config hash" do
+        hash = { key: :foo }
+        expect { described_class.new(hash, **opts) }.not_to(change { hash })
       end
 
       context "when called on a nil value" do
@@ -190,6 +204,13 @@ RSpec.describe Reforge::Transformation::Transform do
       it "delegates to the transform to return the expected value" do
         expect(call).to be :val
         expect(instance.transform).to have_received(:call).once.with(source)
+      end
+
+      # TRICKY: we need to avoid RSpecs memoization habits to make this test work, so we can't use let or subject to
+      # simplify this
+      it "does not modify the config hash" do
+        hash = { value: :val }
+        expect { described_class.new(hash, **opts) }.not_to(change { hash })
       end
     end
 
