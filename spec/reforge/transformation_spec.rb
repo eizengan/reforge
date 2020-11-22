@@ -109,4 +109,52 @@ RSpec.describe Reforge::Transformation do
       end
     end
   end
+
+  describe ".call" do
+    subject(:call) { subclass.call(:source) }
+
+    before do
+      allow(subclass).to receive(:new).and_return(instance)
+      allow(instance).to receive(:call).and_return(:result)
+    end
+
+    it "creates and delegates to an instance" do
+      expect(call).to be :result
+      expect(instance).to have_received(:call).once.with(:source)
+    end
+  end
+
+  describe "#call" do
+    subject(:call) { instance.call(:source) }
+
+    let(:tree) { instance_double(described_class::Tree) }
+
+    before do
+      allow(subclass).to receive(:create_tree).and_return(tree)
+      allow(tree).to receive(:call).with(:source).and_return(:result)
+    end
+
+    it "delegates to a tree created by the subclass and returns the result" do
+      expect(call).to be :result
+      expect(subclass).to have_received(:create_tree).once
+      expect(tree).to have_received(:call).once.with(:source)
+    end
+
+    context "when passed multiple sources" do
+      subject(:call) { instance.call(:source, :other_source, :yet_another_source) }
+
+      before do
+        allow(tree).to receive(:call).with(:other_source).and_return(:other_result)
+        allow(tree).to receive(:call).with(:yet_another_source).and_return(:yet_another_result)
+      end
+
+      it "delegates to a tree created by the subclass and returns a result for each source" do
+        expect(call).to eq %i[result other_result yet_another_result]
+        expect(subclass).to have_received(:create_tree).once
+        expect(tree).to have_received(:call).once.with(:source)
+        expect(tree).to have_received(:call).once.with(:other_source)
+        expect(tree).to have_received(:call).once.with(:yet_another_source)
+      end
+    end
+  end
 end
