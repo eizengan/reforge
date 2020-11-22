@@ -2,5 +2,6 @@
 
 module Reforge
   class Transformation
+    extend DSL
   end
 end

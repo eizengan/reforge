@@ -23,7 +23,8 @@ RSpec.configure do |config|
   # particularly in cases when they have been stubbed. We remove the ones present in the following array before
   # every test just to be safe
   class_instance_variables = [
-    [Reforge, :@configuration]
+    [Reforge, :@configuration],
+    [Reforge::Transformation, :@transform_definitions]
   ]
   config.prepend_before do
     class_instance_variables.each do |klass, instance_variable|

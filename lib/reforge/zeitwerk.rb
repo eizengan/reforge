@@ -10,6 +10,7 @@ reforge_dir = File.dirname(File.realpath(reforge_path))
 
 loader = Zeitwerk::Loader.new
 loader.tag = File.basename(reforge_path)
-loader.inflector = Zeitwerk::GemInflector.new(reforge_path)
+loader.inflector = Zeitwerk::Inflector.new
+loader.inflector.inflect("dsl" => "DSL")
 loader.push_dir(reforge_dir)
 loader.setup
