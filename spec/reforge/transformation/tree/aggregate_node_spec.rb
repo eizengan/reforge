@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Reforge::Tree::AggregateNode do
+RSpec.describe Reforge::Transformation::Tree::AggregateNode do
   subject(:instance) { described_class.new(key_type) }
 
   let(:key_type) { Symbol }
@@ -13,7 +13,7 @@ RSpec.describe Reforge::Tree::AggregateNode do
 
       before { allow(described_class::ArrayNode).to receive(:new).and_call_original }
 
-      it "creates a ArrayNode implementation" do
+      it "creates an ArrayNode implementation" do
         expect(implementation).to be_an_instance_of described_class::ArrayNode
         expect(described_class::ArrayNode).to have_received(:new).once
       end
@@ -71,11 +71,11 @@ RSpec.describe Reforge::Tree::AggregateNode do
       expect { set_element }.to change { instance[:key] }.from(nil).to(node)
     end
 
-    context "when the node is not a AggregateNode or TransformNode" do
+    context "when the node is not an AggregateNode or TransformNode" do
       let(:node) { :not_a_node }
 
       it "raises an ArgumentError" do
-        expect { set_element }.to raise_error ArgumentError, "The node must be a Reforge::AggregateNode or Reforge::TransformNode"
+        expect { set_element }.to raise_error ArgumentError, "The node must be an AggregateNode or TransformNode"
       end
     end
 
@@ -91,7 +91,7 @@ RSpec.describe Reforge::Tree::AggregateNode do
       before { instance[:key] = described_class.new(Symbol) }
 
       it "raises an NodeRedefinitionError" do
-        expect { set_element }.to raise_error Reforge::Tree::NodeRedefinitionError, "A node already exists at key 'key'"
+        expect { set_element }.to raise_error Reforge::Transformation::Tree::NodeRedefinitionError, "A node already exists at key 'key'"
       end
     end
   end

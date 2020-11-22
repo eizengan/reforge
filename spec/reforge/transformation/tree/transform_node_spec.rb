@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Reforge::Tree::TransformNode do
+RSpec.describe Reforge::Transformation::Tree::TransformNode do
   subject(:instance) { described_class.new(transform) }
 
   let(:transform) { nil }
@@ -9,7 +9,7 @@ RSpec.describe Reforge::Tree::TransformNode do
     let(:transform) { nil }
 
     it "raises during initialization" do
-      expect { instance }.to raise_error ArgumentError, "The transform must be a Reforge::Transform"
+      expect { instance }.to raise_error ArgumentError, "The transform must be a Transform"
     end
   end
 
@@ -17,14 +17,14 @@ RSpec.describe Reforge::Tree::TransformNode do
     let(:transform) { "hello" }
 
     it "raises during initialization" do
-      expect { instance }.to raise_error ArgumentError, "The transform must be a Reforge::Transform"
+      expect { instance }.to raise_error ArgumentError, "The transform must be a Transform"
     end
   end
 
   context "when a valid transform is supplied" do
-    let(:transform) { instance_double(Reforge::Transform) }
+    let(:transform) { instance_double(Reforge::Transformation::Transform) }
 
-    before { allow(transform).to receive(:is_a?).with(Reforge::Transform).and_return(true) }
+    before { allow(transform).to receive(:is_a?).with(Reforge::Transformation::Transform).and_return(true) }
 
     describe "#call" do
       subject(:call) { instance.call(:source) }
