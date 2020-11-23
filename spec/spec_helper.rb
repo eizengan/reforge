@@ -15,8 +15,28 @@ RSpec.configure do |config|
   # Disable RSpec exposing methods globally on `Module` and `main`
   config.disable_monkey_patching!
 
-  config.expect_with :rspec do |c|
-    c.syntax = :expect
+  # Run tests in random order
+  config.order = :random
+
+  # Profile the 5 slowest examples
+  config.profile_examples = 5
+
+  config.expect_with :rspec do |expect_config|
+    expect_config.syntax = :expect
+
+    # Show all expectation messages when they are chained together
+    expect_config.include_chain_clauses_in_custom_matcher_descriptions = true
+  end
+
+  # Show detailed output when only one file is run
+  config.default_formatter = :documentation if config.files_to_run.one?
+
+  config.mock_with :rspec do |mock_config|
+    # Expecting/allowing method calls on nil is an error
+    mock_config.allow_message_expectations_on_nil = false
+
+    # Disallow expecting/allowing unknown method calls
+    mock_config.verify_partial_doubles = true
   end
 
   # TRICKY: class instance variables persist between tests and should be cleared to avoid cross-test pollution,
