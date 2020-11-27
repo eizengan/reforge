@@ -9,6 +9,7 @@ module Reforge
         attr_reader :implementation
 
         def initialize(key_type)
+          @path = []
           @implementation = implementation_from(key_type)
           @key_type = key_type
         end
@@ -23,12 +24,19 @@ module Reforge
           validate_no_redefinition!(key)
 
           implementation.children[key] = node
+          node.update_path(@path + [key])
+          node # rubocop:disable Lint/Void
         end
 
         def [](key)
           validate_key!(key)
 
           implementation.children[key]
+        end
+
+        def update_path(path)
+          @path = path
+          implementation.update_path(path)
         end
 
         private

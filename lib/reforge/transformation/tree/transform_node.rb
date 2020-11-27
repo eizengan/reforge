@@ -16,6 +16,10 @@ module Reforge
           transform.call(source)
         end
 
+        def update_path(path)
+          @path = path
+        end
+
         private
 
         def validate_transform!(transform)
