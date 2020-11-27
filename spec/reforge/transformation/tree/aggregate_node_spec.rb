@@ -83,7 +83,7 @@ RSpec.describe Reforge::Transformation::Tree::AggregateNode do
       let(:key_type) { String }
 
       it "raises an ArgumentError" do
-        expect { set_element }.to raise_error ArgumentError, "The key must be a String"
+        expect { set_element }.to raise_error ArgumentError, "Expected :key at node path [:key] to be of String type"
       end
     end
 
@@ -91,7 +91,7 @@ RSpec.describe Reforge::Transformation::Tree::AggregateNode do
       before { instance[:key] = described_class.new(Symbol) }
 
       it "raises an NodeRedefinitionError" do
-        expect { set_element }.to raise_error Reforge::Transformation::Tree::NodeRedefinitionError, "A node already exists at key 'key'"
+        expect { set_element }.to raise_error Reforge::Transformation::Tree::NodeRedefinitionError, "Node already exists at [:key]"
       end
     end
   end
@@ -111,7 +111,7 @@ RSpec.describe Reforge::Transformation::Tree::AggregateNode do
       subject(:get_element) { instance[0] }
 
       it "raises an ArgumentError" do
-        expect { get_element }.to raise_error ArgumentError, "The key must be a Symbol"
+        expect { get_element }.to raise_error ArgumentError, "Expected 0 at node path [0] to be of Symbol type"
       end
     end
   end

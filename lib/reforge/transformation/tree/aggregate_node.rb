@@ -9,6 +9,7 @@ module Reforge
         attr_reader :implementation
 
         def initialize(key_type)
+          @path = []
           @implementation = implementation_from(key_type)
           @key_type = key_type
         end
@@ -23,12 +24,18 @@ module Reforge
           validate_no_redefinition!(key)
 
           implementation.children[key] = node
+          node.update_path(@path + [key])
         end
 
         def [](key)
           validate_key!(key)
 
           implementation.children[key]
+        end
+
+        def update_path(path)
+          @path = path
+          implementation.update_path(path)
         end
 
         private
@@ -42,13 +49,15 @@ module Reforge
         def validate_key!(key)
           return if key.is_a?(@key_type)
 
-          raise ArgumentError, "The key must be a #{@key_type}"
+          invalid_path = @path + [key]
+          raise ArgumentError, "Expected #{key.inspect} at node path #{invalid_path} to be of #{@key_type} type"
         end
 
         def validate_no_redefinition!(key)
           return if implementation.children[key].nil?
 
-          raise NodeRedefinitionError, "A node already exists at key '#{key}'"
+          invalid_path = @path + [key]
+          raise NodeRedefinitionError, "Node already exists at #{invalid_path}"
         end
       end
     end

@@ -14,6 +14,10 @@ module Reforge
           def call(source)
             children.transform_values { |child| child.call(source) }
           end
+
+          def update_path(path)
+            children.each { |key, child| child.update_path(path + [key]) }
+          end
         end
       end
     end
