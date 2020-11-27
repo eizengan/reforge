@@ -8,9 +8,7 @@ RSpec.describe Reforge::Transformation::Transform::Memo do
   describe ".from" do
     subject(:from) { described_class.from(memoize) }
 
-    let(:memo) { instance_double(described_class) }
-
-    before { allow(described_class).to receive(:new).and_return(memo) }
+    before { allow(described_class).to receive(:new).and_call_original }
 
     context "when memoize is invalid" do
       let(:memoize) { 10 }
@@ -21,17 +19,16 @@ RSpec.describe Reforge::Transformation::Transform::Memo do
     end
 
     context "when memoize is a configuration hash" do
-      let(:memoize) { { by: :arg } }
+      let(:memoize) { { by: proc } }
+      let(:proc) { ->(v) { v.to_s[0] } }
 
       it "returns the expected Memo" do
-        expect(from).to be memo
-        expect(described_class).to have_received(:new).with(:arg)
+        expect(from).to be_an_instance_of(described_class)
+        expect(described_class).to have_received(:new).once.with an_object_eq_to proc
       end
 
       context "when the configuration hash is invalid" do
         let(:memoize) { { by: nil } }
-
-        before { allow(described_class).to receive(:new).and_call_original }
 
         it "raises an ArgumentError" do
           expect { from }.to raise_error ArgumentError, "The memoize option should be true, :first, or a valid configuration hash"
@@ -43,17 +40,17 @@ RSpec.describe Reforge::Transformation::Transform::Memo do
       let(:memoize) { :first }
 
       it "returns the expected Memo" do
-        expect(from).to be memo
-        expect(described_class).to have_received(:new).with(described_class::CONSTANT_TRANSFORM)
+        expect(from).to be_an_instance_of(described_class)
+        expect(described_class).to have_received(:new).once.with an_object_eq_to described_class::CONSTANT_TRANSFORM
       end
     end
 
     context "when memoize is true" do
-      let(:memoize) { :first }
+      let(:memoize) { true }
 
       it "returns the expected Memo" do
-        expect(from).to be memo
-        expect(described_class).to have_received(:new).with(described_class::IDENTITY_TRANSFORM)
+        expect(from).to be_an_instance_of(described_class)
+        expect(described_class).to have_received(:new).once.with an_object_eq_to described_class::IDENTITY_TRANSFORM
       end
     end
   end
