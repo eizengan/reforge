@@ -31,22 +31,22 @@ RSpec.describe Reforge::Transformation::Tree do
       end
 
       context "when the path is incompatible with the key_type of the existing nodes" do
-        subject(:attach_transform) { instance.attach_transform("foo", transform) }
+        before { instance.attach_transform(:foo, 0, other_transform) }
 
-        # TODO: this error is raised by the node without knowledge of the surrounding context. The error should be
-        # made context-sensitive so that the problem is more obvious
+        subject(:attach_transform) { instance.attach_transform(:foo, "bar", transform) }
+
         it "raises an ArgumentError" do
-          expect { attach_transform }.to raise_error ArgumentError, "The key must be a Symbol"
+          expect { attach_transform }.to raise_error ArgumentError, 'Expected "bar" at node path [:foo, "bar"] to be of Integer type'
         end
       end
 
       context "when the transform would take the spot of an existing node" do
-        subject(:attach_transform) { instance.attach_transform(:bar, transform) }
+        subject(:attach_transform) { instance.attach_transform(:foo, "bar", transform) }
 
-        # TODO: this error is raised by the node without knowledge of the surrounding context. The error should be
-        # made context-sensitive so that the problem is more obvious
+        before { instance.attach_transform(:foo, "bar", transform) }
+
         it "raises a NodeRedefinitionError" do
-          expect { attach_transform }.to raise_error described_class::NodeRedefinitionError, "A node already exists at key 'bar'"
+          expect { attach_transform }.to raise_error described_class::NodeRedefinitionError, 'Node already exists at [:foo, "bar"]'
         end
       end
     end

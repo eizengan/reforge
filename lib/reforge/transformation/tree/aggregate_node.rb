@@ -25,7 +25,6 @@ module Reforge
 
           implementation.children[key] = node
           node.update_path(@path + [key])
-          node # rubocop:disable Lint/Void
         end
 
         def [](key)
@@ -50,13 +49,15 @@ module Reforge
         def validate_key!(key)
           return if key.is_a?(@key_type)
 
-          raise ArgumentError, "The key must be a #{@key_type}"
+          invalid_path = @path + [key]
+          raise ArgumentError, "Expected #{key.inspect} at node path #{invalid_path} to be of #{@key_type} type"
         end
 
         def validate_no_redefinition!(key)
           return if implementation.children[key].nil?
 
-          raise NodeRedefinitionError, "A node already exists at key '#{key}'"
+          invalid_path = @path + [key]
+          raise NodeRedefinitionError, "Node already exists at #{invalid_path}"
         end
       end
     end
