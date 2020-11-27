@@ -23,45 +23,32 @@ RSpec.describe Reforge::Transformation::Transform do
   end
 
   context "when the memoize option is supplied" do
-    let(:transform) { ->(v) { v.to_s } }
-    let(:opts) { { memoize: memoize } }
-    let(:memoize) { nil }
+    let(:transform) { { attribute: :to_sym } }
+    let(:opts) { { memoize: { by: memoize } } }
+    let(:memoize) { ->(s) { s[0] } }
 
-    context "when memoize is invalid" do
-      let(:memoize) { 10 }
+    before { allow(described_class::Memo).to receive(:from).and_call_original }
 
-      it "raises an ArgumentError during initialization" do
-        expect { instance }.to raise_error ArgumentError, "The memoize option must be true, false, or a configuration hash"
-      end
+    it "creates the expected Memo" do
+      instance
+      expect(described_class::Memo).to have_received(:from).with(by: memoize)
     end
 
-    context "when memoize is true" do
-      let(:memoize) { true }
-
-      before { allow(described_class::MemoizedTransform).to receive(:new).and_return(:memoized_transform) }
-
-      it "sets a memoized version of the transform" do
-        expect(instance.transform).to be :memoized_transform
-        expect(described_class::MemoizedTransform).to have_received(:new).once.with(transform)
-      end
+    it "returns and memoizes the value by the memo key" do
+      expect(instance.call("foo")).to be :foo
+      expect(instance.call("faz")).to be :foo
     end
 
-    context "when memoize is an invalid configuration hash" do
-      let(:memoize) { { by: 10 } }
+    context "when the transform is called on a source with a corresponding memo entry" do
+      before { instance.call("foo") }
 
-      it "raises an ArgumentError during initialization" do
-        expect { instance }.to raise_error ArgumentError, "The :by option of the configuration hash must be callable or a transform configuration hash"
+      it "returns the value at the corresponding memo key" do
+        expect(instance.call("faz")).to be :foo
       end
-    end
 
-    context "when memoize is a valid configuration hash" do
-      let(:memoize) { { by: ->(v) { v.to_s } } }
-
-      before { allow(described_class::MemoizedTransform).to receive(:new).and_return(:memoized_transform) }
-
-      it "sets a configured, memoized version of the transform" do
-        expect(instance.transform).to be :memoized_transform
-        expect(described_class::MemoizedTransform).to have_received(:new).once.with(transform, memoize)
+      it "does not change at the corresponding memo key" do
+        expect(instance.call("faz")).to be :foo
+        expect(instance.call("foo")).to be :foo
       end
     end
   end
