@@ -4,6 +4,9 @@ module Reforge
   class Transformation
     class Transform
       module Factories
+        # TODO: here we code to the least common denominator: everything is a proc. This likely works slower than
+        # something specialized to each individual case. This could be of concern since these will be called
+        # per-transform, per-source
         TRANSFORM_PROC_FACTORIES = {
           attribute: ->(*attributes, **config) { attribute_transform_for(*attributes, **config) },
           key: ->(*keys, **config) { key_transform_for(*keys, **config) },
