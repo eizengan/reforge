@@ -208,6 +208,15 @@ RSpec.describe Reforge::Transformation::Transform do
         expect(call).to eq({ foo: "bar" })
         expect(instance.transform).to have_received(:call).once.with(source)
       end
+
+      context "when the proc takes no args" do
+        let(:transform) { -> { 123 } }
+
+        it "delegates to the transform" do
+          expect(call).to eq 123
+          expect(instance.transform).to have_received(:call).once
+        end
+      end
     end
   end
 end

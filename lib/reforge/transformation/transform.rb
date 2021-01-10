@@ -17,13 +17,21 @@ module Reforge
 
       def call(source)
         if @memo.nil?
-          @transform.call(source)
+          call_transform(source)
         else
-          @memo[source] ||= @transform.call(source)
+          @memo[source] ||= call_transform(source)
         end
       end
 
       private
+
+      def call_transform(source)
+        if @transform.arity.zero?
+          @transform.call
+        else
+          @transform.call(source)
+        end
+      end
 
       def validate_transform!(transform)
         return if transform.respond_to?(:call)
