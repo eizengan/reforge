@@ -179,6 +179,17 @@ RSpec.describe Reforge::Transformation do
         expect(tree).to have_received(:attach_transform).once.with(:baz, baz_transform)
         expect(tree).to have_received(:attach_transform).once.with(:qux, 0, qux_0_transform)
       end
+
+      context "when an error is raised while attaching a node" do
+        before { allow(tree).to receive(:attach_transform).and_raise(ArgumentError, "something wasn't right") }
+
+        it "displays the path of the node alongside the error message" do
+          expect { create_tree }.to raise_error(
+            Reforge::Transformation::TreeCreationError,
+            "Failed to attach node at path [:foo, :bar] - something wasn't right"
+          )
+        end
+      end
     end
   end
 
