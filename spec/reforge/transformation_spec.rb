@@ -20,6 +20,24 @@ RSpec.describe Reforge::Transformation do
             memoize: { by: { attribute: :size } }
           )
         end
+
+        context "when the transform has no path" do
+          subject(:extract) do
+            subclass.extract from: { key: 0 }, memoize: { by: { attribute: :size } }
+          end
+
+          it "does not raise an error" do
+            expect { extract }.not_to raise_error
+          end
+
+          it "adds the expected transform definition" do
+            expect { extract }.to change(subclass.transform_definitions, :size).from(0).to(1)
+            expect(subclass.transform_definitions.first).to eq(
+              transform: { key: 0 },
+              memoize: { by: { attribute: :size } }
+            )
+          end
+        end
       end
 
       context "when a transform proc is provided" do
@@ -36,6 +54,24 @@ RSpec.describe Reforge::Transformation do
             transform: transform_proc,
             memoize: { by: { attribute: :size } }
           )
+        end
+
+        context "when the transform has no path" do
+          subject(:extract) do
+            subclass.extract from: transform_proc, memoize: { by: { attribute: :size } }
+          end
+
+          it "does not raise an error" do
+            expect { extract }.not_to raise_error
+          end
+
+          it "adds the expected transform definition" do
+            expect { extract }.to change(subclass.transform_definitions, :size).from(0).to(1)
+            expect(subclass.transform_definitions.first).to eq(
+              transform: transform_proc,
+              memoize: { by: { attribute: :size } }
+            )
+          end
         end
       end
     end
@@ -54,6 +90,24 @@ RSpec.describe Reforge::Transformation do
             memoize: { by: { attribute: :size } }
           )
         end
+
+        context "when the transform has no path" do
+          subject(:extract) do
+            subclass.transform key: 0, memoize: { by: { attribute: :size } }
+          end
+
+          it "does not raise an error" do
+            expect { extract }.not_to raise_error
+          end
+
+          it "adds the expected transform definition" do
+            expect { extract }.to change(subclass.transform_definitions, :size).from(0).to(1)
+            expect(subclass.transform_definitions.first).to eq(
+              transform: { key: 0 },
+              memoize: { by: { attribute: :size } }
+            )
+          end
+        end
       end
 
       context "when a transform proc is provided" do
@@ -69,6 +123,24 @@ RSpec.describe Reforge::Transformation do
             transform: transform_proc,
             memoize: { by: { attribute: :size } }
           )
+        end
+
+        context "when the transform has no path" do
+          subject(:extract) do
+            subclass.transform transform_proc, memoize: { by: { attribute: :size } }
+          end
+
+          it "does not raise an error" do
+            expect { extract }.not_to raise_error
+          end
+
+          it "adds the expected transform definition" do
+            expect { extract }.to change(subclass.transform_definitions, :size).from(0).to(1)
+            expect(subclass.transform_definitions.first).to eq(
+              transform: transform_proc,
+              memoize: { by: { attribute: :size } }
+            )
+          end
         end
       end
     end

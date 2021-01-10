@@ -3,7 +3,7 @@
 module Reforge
   class Transformation
     module DSL
-      def extract(path, from:, memoize: nil)
+      def extract(path = nil, from:, memoize: nil)
         transform_definitions.push(
           {
             path: path,
@@ -19,7 +19,7 @@ module Reforge
       # but in the former case the arguments are collapsed into a single hash which is used as the transform arg. By
       # using **transform_hash we can avoid this behavior, but as a result the transform could be in either the
       # transform argument or the transform_hash
-      def transform(transform = nil, into:, memoize: nil, **transform_hash)
+      def transform(transform = nil, into: nil, memoize: nil, **transform_hash)
         transform_definitions.push(
           {
             path: into,
