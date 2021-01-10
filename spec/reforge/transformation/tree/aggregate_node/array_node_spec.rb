@@ -14,20 +14,20 @@ RSpec.describe Reforge::Transformation::Tree::AggregateNode::ArrayNode do
   describe "#call" do
     subject(:call) { instance.call(:source) }
 
-    let(:children) { [child_1, nil, child_2] }
-    let(:child_1) { instance_double(described_class) }
-    let(:child_2) { instance_double(described_class) }
+    let(:children) { [child1, nil, child2] }
+    let(:child1) { instance_double(described_class) }
+    let(:child2) { instance_double(described_class) }
 
     before do
       allow(instance).to receive(:children).and_return(children)
-      allow(child_1).to receive(:call).and_return(:result_1)
-      allow(child_2).to receive(:call).and_return(:result_2)
+      allow(child1).to receive(:call).and_return(:result1)
+      allow(child2).to receive(:call).and_return(:result2)
     end
 
     it "delegates to its children to create the expected array" do
-      expect(call).to eq [:result_1, nil, :result_2]
-      expect(child_1).to have_received(:call).with(:source)
-      expect(child_2).to have_received(:call).with(:source)
+      expect(call).to eq [:result1, nil, :result2]
+      expect(child1).to have_received(:call).with(:source)
+      expect(child2).to have_received(:call).with(:source)
     end
   end
 end

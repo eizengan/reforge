@@ -4,6 +4,7 @@ module Reforge
   class Transformation
     class Tree
       class NodeRedefinitionError < StandardError; end
+
       class PathPartError < StandardError; end
 
       attr_reader :root
@@ -66,7 +67,7 @@ module Reforge
         # of ||= is inappropriate during TransformNode attachment because it will not attempt to create and attach the
         # node if a child with the same key already exists, so we just use = below
         parent_path_parts = path[0..-2]
-        child_path_parts = path[1..]
+        child_path_parts = path[1..-1]
         parent_path_parts.zip(child_path_parts).each do |parent_path_part, child_path_part|
           node = node[parent_path_part] ||= create_node(child_path_part)
         end
