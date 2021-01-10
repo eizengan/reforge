@@ -2,6 +2,8 @@
 
 module Reforge
   class Transformation
+    class TreeCreationError < StandardError; end
+
     module DSL
       def extract(path = nil, from:, memoize: nil)
         transform_definitions.push(
@@ -36,6 +38,8 @@ module Reforge
             memoize: transform_definition[:memoize]
           )
           tree.attach_transform(*transform_definition[:path], transform)
+        rescue StandardError => e
+          raise TreeCreationError, "Failed to attach node at path #{[*transform_definition[:path]]} - #{e.message}"
         end
       end
 
