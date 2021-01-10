@@ -88,33 +88,33 @@ RSpec.describe Reforge::Transformation::Tree do
   describe "#call" do
     subject(:call) { instance.call(:source) }
 
-    let(:transform_1) { Reforge::Transformation::Transform.new(value: :result_1) }
-    let(:transform_2) { Reforge::Transformation::Transform.new(value: :result_2) }
-    let(:transform_3) { Reforge::Transformation::Transform.new(value: :result_3) }
-    let(:transform_4) { Reforge::Transformation::Transform.new(value: :result_4) }
+    let(:transform1) { Reforge::Transformation::Transform.new(value: :result1) }
+    let(:transform2) { Reforge::Transformation::Transform.new(value: :result2) }
+    let(:transform3) { Reforge::Transformation::Transform.new(value: :result3) }
+    let(:transform4) { Reforge::Transformation::Transform.new(value: :result4) }
 
     before do
-      allow(transform_1).to receive(:call).and_call_original
-      allow(transform_2).to receive(:call).and_call_original
-      allow(transform_3).to receive(:call).and_call_original
-      allow(transform_4).to receive(:call).and_call_original
+      allow(transform1).to receive(:call).and_call_original
+      allow(transform2).to receive(:call).and_call_original
+      allow(transform3).to receive(:call).and_call_original
+      allow(transform4).to receive(:call).and_call_original
 
-      instance.attach_transform(:foo, 0, transform_1)
-      instance.attach_transform(:foo, 2, transform_2)
-      instance.attach_transform(:bar, transform_3)
-      instance.attach_transform(:baz, :faz, transform_4)
+      instance.attach_transform(:foo, 0, transform1)
+      instance.attach_transform(:foo, 2, transform2)
+      instance.attach_transform(:bar, transform3)
+      instance.attach_transform(:baz, :faz, transform4)
     end
 
     it "uses the tree's nodes to transform the data" do
       expect(call).to eq(
-        foo: [:result_1, nil, :result_2],
-        bar: :result_3,
-        baz: { faz: :result_4 }
+        foo: [:result1, nil, :result2],
+        bar: :result3,
+        baz: { faz: :result4 }
       )
-      expect(transform_1).to have_received(:call).once.with(:source)
-      expect(transform_2).to have_received(:call).once.with(:source)
-      expect(transform_3).to have_received(:call).once.with(:source)
-      expect(transform_4).to have_received(:call).once.with(:source)
+      expect(transform1).to have_received(:call).once.with(:source)
+      expect(transform2).to have_received(:call).once.with(:source)
+      expect(transform3).to have_received(:call).once.with(:source)
+      expect(transform4).to have_received(:call).once.with(:source)
     end
   end
 end

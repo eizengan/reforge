@@ -10,54 +10,44 @@ env:
   BUNDLE_PATH: vendor/bundle
 
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: 2.6.6
-    - name: Cache dependencies
-      id: cache-dependencies
-      uses: actions/cache@v2
-      with:
-        path: ${{ env.BUNDLE_PATH }}
-        key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
-        restore-keys:  ${{ runner.os }}-gems-
-    - name: Install dependencies
-      if: steps.cache-dependencies.outputs.cache-hit != 'true'
-      run: bundle install --jobs 20 --retry 5
-    - name: Lint files
-      run: bundle exec rake rubocop
-
-  test:
-    runs-on: ubuntu-latest
+  ci:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ['macos', 'ubuntu', 'windows']
+        ruby: ['2.5', '2.6', '2.7']
+    runs-on: ${{ matrix.os }}-latest
     steps:
     - uses: actions/checkout@v2
       with:
         fetch-depth: 2
     - uses: ruby/setup-ruby@v1
       with:
-        ruby-version: 2.6.6
+        ruby-version: ${{ matrix.ruby }}
     - name: Cache dependencies
       id: cache-dependencies
       uses: actions/cache@v2
       with:
         path: ${{ env.BUNDLE_PATH }}
-        key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
-        restore-keys:  ${{ runner.os }}-gems-
+        key: ${{ matrix.os }}-${{ matrix.ruby }}-gems-${{ hashFiles('**/Gemfile', '**/*.gemspec') }}
+        restore-keys: ${{ matrix.os }}-${{ matrix.ruby }}-gems-
     - name: Download test reporter
+      if: ${{ matrix.os == 'ubuntu' && matrix.ruby == '2.7' }}
       run: |
         curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
         chmod +x ./cc-test-reporter
-    - name: Notify of pending report
-      run: ./cc-test-reporter before-build
     - name: Install dependencies
       if: steps.cache-dependencies.outputs.cache-hit != 'true'
       run: bundle install --jobs 20 --retry 5
+    - name: Lint files
+      run: bundle exec rake rubocop
+    - name: Notify of pending report
+      if: ${{ matrix.os == 'ubuntu' && matrix.ruby == '2.7' }}
+      run: ./cc-test-reporter before-build
     - name: Run tests
       run: bundle exec rake rspec
     - name: Publish code coverage
+      if: ${{ matrix.os == 'ubuntu' && matrix.ruby == '2.7' }}
       # TRICKY: We need to manually set the env vars required by Code Climate. GIT_BRANCH is simple to determine, but
       # GIT_COMMIT_SHA is context dependent:
       # - When running actions on main when it is pushed we can simply use GITHUB_SHA
