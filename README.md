@@ -27,6 +27,8 @@ Or install it yourself as:
 
 See the [introduction](INTRODUCTION.md) for information on how to create transformations.
 
+Changes for each version are noted in the [changelog](CHANGELOG.md)
+
 ## License
 
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
