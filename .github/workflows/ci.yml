@@ -11,21 +11,26 @@ env:
 
 jobs:
   ci:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos, ubuntu, windows]
+        ruby: [2.5, 2.6, 2.7, jruby, truffleruby]
+    runs-on: ${{ matrix.os }}-latest
     steps:
     - uses: actions/checkout@v2
       with:
         fetch-depth: 2
     - uses: ruby/setup-ruby@v1
       with:
-        ruby-version: 2.6.6
+        ruby-version: ${{ matrix.ruby }}
     - name: Cache dependencies
       id: cache-dependencies
       uses: actions/cache@v2
       with:
         path: ${{ env.BUNDLE_PATH }}
-        key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
-        restore-keys:  ${{ runner.os }}-gems-
+        key: ${{ matrix.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+        restore-keys:  ${{ matrix.os }}-gems-
     - name: Download test reporter
       run: |
         curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
