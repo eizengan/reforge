@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    reforge (0.0.0)
+    reforge (0.1.0)
       zeitwerk (~> 2.4)
 
 GEM
