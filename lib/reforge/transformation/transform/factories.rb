@@ -8,8 +8,8 @@ module Reforge
         # something specialized to each individual case. This could be of concern since these will be called
         # per-transform, per-source
         TRANSFORM_PROC_FACTORIES = {
-          attribute: ->(*attributes, **config) { attribute_transform_for(*attributes, **config) },
-          key: ->(*keys, **config) { key_transform_for(*keys, **config) },
+          attribute: ->(attributes, **config) { attribute_transform_for(attributes, **config) },
+          key: ->(keys, **config) { key_transform_for(keys, **config) },
           value: ->(value, **_config) { value_transform_for(value) }
         }.freeze
         TRANSFORM_TYPES = TRANSFORM_PROC_FACTORIES.keys.freeze
@@ -21,22 +21,26 @@ module Reforge
           args = config[type]
           config = config.reject { |k, _v| k == type }
 
-          TRANSFORM_PROC_FACTORIES[type].call(*args, **config)
+          TRANSFORM_PROC_FACTORIES[type].call(args, **config)
         end
 
-        private_class_method def self.attribute_transform_for(*attributes, propogate_nil: false)
-          recursive_method_call(:send, *attributes, propogate_nil: propogate_nil)
+        private_class_method def self.attribute_transform_for(attributes, propogate_nil: false)
+          recursive_method_call(:send, attributes, propogate_nil: propogate_nil)
         end
 
-        private_class_method def self.key_transform_for(*keys, propogate_nil: false)
-          recursive_method_call(:[], *keys, propogate_nil: propogate_nil)
+        private_class_method def self.key_transform_for(keys, propogate_nil: false)
+          recursive_method_call(:[], keys, propogate_nil: propogate_nil)
         end
 
         private_class_method def self.value_transform_for(value)
           ->(_source) { value }
         end
 
-        private_class_method def self.recursive_method_call(method, *arguments, propogate_nil: false)
+        private_class_method def self.recursive_method_call(method, arguments, propogate_nil: false)
+          # TRICKY: this could be a single argument or an array of many, so we circumvent the destinction by wrapping
+          # single arguments in an array
+          arguments = [arguments] unless arguments.respond_to?(:reduce)
+
           if propogate_nil
             ->(source) { arguments.reduce(source) { |object, argument| object&.send(method, argument) } }
           else
