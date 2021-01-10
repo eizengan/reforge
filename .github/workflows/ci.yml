@@ -15,7 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [macos, ubuntu, windows]
-        ruby: [2.5, 2.6, 2.7, jruby, truffleruby]
+        ruby: [2.5, 2.6, 2.7]
     runs-on: ${{ matrix.os }}-latest
     steps:
     - uses: actions/checkout@v2
@@ -29,8 +29,8 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ${{ env.BUNDLE_PATH }}
-        key: ${{ matrix.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
-        restore-keys:  ${{ matrix.os }}-gems-
+        key: ${{ matrix.os }}-${{ matrix.ruby }}-gems-${{ hashFiles('**/Gemfile', '**/*.gemspec') }}
+        restore-keys: ${{ matrix.os }}-${{ matrix.ruby }}-gems-
     - name: Download test reporter
       run: |
         curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter

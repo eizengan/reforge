@@ -10,4 +10,12 @@
 # rspec failure tracking
 .rspec_status
 
+# built gems
 reforge-*.gem
+
+# lock should vary by version
+Gemfile.lock
+
+# support multiple versions
+.ruby-version
+.tool-versions
