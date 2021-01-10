@@ -64,7 +64,7 @@ def expensive_method
   "hello world"
 end
 
-class ExampleTransform < Reforge::Transformation
+class ExampleTransformation < Reforge::Transformation
   extract :date, from: ->(source) { Date.parse(source[:timestamp]) }
   extract :amount, from: { key: :usd }
   extract :expensive_result, from: -> { expensive_method }, memoize: :first
@@ -75,7 +75,7 @@ sources = [
   { timestamp: "2019-01-10", usd: 2.46 },
   { timestamp: "2019-10-01", usd: 3.69 }
 ]
-results = ExampleTransform.call(*sources)
+results = ExampleTransformation.call(*sources)
 # expensive_method was called, but only once!
 # => [{:date=>#<Date: 2019-01-01 ...>, :amount=>1.23, :expensive_result=>"hello world"},
 #     {:date=>#<Date: 2019-01-10 ...>, :amount=>2.46, :expensive_result=>"hello world"},
@@ -110,7 +110,7 @@ Errors resulting from improper usage of the DSL are not raised immediately. Inst
 
 ## Defining Paths
 
-Paths are used by Reforge to determine where in the Result to place transformed Source data. They are also used to determine what form the Result will take - a path of `:key` or `"key"` will result in a Hash, and `0` in an Array. A Path with Array type will nest the value using the same logic. The following examples assume that data placed by `path` is `"data"`:
+Paths are used by Reforge to determine where in the Result to place transformed Source data. They are also used to determine what type the Result will take - a path of `:key` or `"key"` will result in a Hash, and `0` in an Array. A Path with Array type can be used when values should be nested within a series of Hashes and Arrays; the regular type deduction rules will be applied in order. The following examples illustrate what happens when the string `"data"` is placed using the path definitions shown:
 
 ```ruby
 path = :foo        # result = { foo: "data" }
@@ -122,13 +122,13 @@ path = %i[foo bar] # result = { foo: { bar: "data" } }
 
 ## Defining Transforms
 
-Transforms are used by Reforge to determine how to obtain a single, transformed value from a Source. A Transform can be a Proc taking one argument (the Source) or no arguments. For some simple Transforms a Configuration Hash can be used instead.
+Transforms are used by Reforge to determine how to obtain a single, transformed value from a Source. A Transform can be a Proc which takes the Source as an argument or a Proc which takes no arguments. For some simple Transforms a Configuration Hash can be used instead.
 
 ### Transform Configuration Hashes
 
 #### Key Configuration Hashes
 
-If the data you need exists in a nesting of Hash- or Array-like objects, then you can use a key configuration hash to obtain it. These paired Transforms will produce the same results:
+If the data you need from a Source exists inside nested Hash- or Array-like objects, then you can use a Transform defined by a key configuration hash to obtain it. The pairs of Transforms below will produce the same results:
 ```ruby
 transform = ->(source) { source[:foo] }
 transform = { key: :foo }
@@ -139,7 +139,7 @@ nested_transform = { key: [:foo, 1] }
 
 #### Attribute Configuration Hashes
 
-Similarly if the data you need lies at the end of a series of attribute calls, then you can use an attribute configuration hash to obtain it. These paired Transforms will produce the same results:
+Similarly if the data you need lies at the end of a series of attribute calls, then you can use an attribute configuration hash to obtain it. The pairs of Transforms below will produce the same results:
 ```ruby
 transform = ->(source) { source.size }
 transform = { attribute: :size }
@@ -151,7 +151,7 @@ nested_transform = { attribute: %i[size digits] }
 
 #### Nil Propogation
 
-The Transforms made by key and attribute configuration hashes will most likely fail if they hit a nil value. To avoid this, you may pass the option `propogate_nil: true`. These Transforms will produce the same results:
+The Transforms made by key and attribute configuration hashes will raise an error if they hit a nil value partway through the array of keys or attributes they have been instructed to traverse. To avoid this, you may pass the option `propogate_nil: true`. These Transforms will produce the same results:
 ```ruby
 transform = ->(source) { source&.size&.digits }
 transform = { attribute: %i[size digits], propogate_nil: true }
@@ -159,7 +159,7 @@ transform = { attribute: %i[size digits], propogate_nil: true }
 
 #### Value Configuration Hashes
 
-Sometimes the data you need to add is independent of the Source and will not change. In such cases you can use a value configuration hash. These Transforms will produce the same results:
+Sometimes the data you need to add to a Result is independent of the Source and will not change. In such cases you can use a value configuration hash. These Transforms will produce the same results:
 ```ruby
 transform = -> { 1_234_567 }
 transform = { value: 1_234_567 }
@@ -167,18 +167,18 @@ transform = { value: 1_234_567 }
 
 ## Memoizing Transform Results
 
-There may be occasions where your Transforms are expensive in terms of time or resources. The initial cost of these Transforms may be unavoidable, but by memoizing the Transform results you can avoid incurring it when the Transform is repeated. By specifying what criteria qualify as "repitition", you can tailor memoization perfectly to your use case.
+There may be occasions where your Transforms are expensive either in the time required to precess them or their resource use. The initial cost of these Transforms may be unavoidable, but by memoizing the Transform results you can avoid incurring it when the Transform is repeated. By specifying what criteria qualify as "repitition", you can tailor memoization perfectly to your use case.
 
 ### Memo Lifetime
 
-Memoized results will last as long as the Transformation that uses them. For calls directly against the class this is the duration of the call, and for calls against a Transformation instance this is equal the lifetime of that instance:
+Memoized results will last as long as the Transformation that uses them. For calls directly against the class this duration is equal the duration of the call, and for calls against a Transformation instance it is equal the lifetime of that instance:
 
 ```ruby
 class ExampleTransformation < Reforge::Transformation
   extract :expensive_result, from: -> { expensive_method }, memoize: :true
 end
 
-# The memo from this call lasts only for the duration of that call - future calls are unaffected
+# The memo used in this call lasts only for the duration of that call - future calls are unaffected
 ExampleTransformation.call(*sources)
 
 
@@ -201,18 +201,18 @@ def expensive_method(i)
   "result for #{i}"
 end
 
-class ExampleTransform < Reforge::Transformation
+class ExampleTransformation < Reforge::Transformation
   extract :expensive_result, from: ->(i) { expensive_method(i) }, memoize: :true
 end
 
 sources = [1, 1]
-results = ExampleTransform.call(*sources)
+results = ExampleTransformation.call(*sources)
 # expensive_method was called!
 # => [{:expensive_result=>"result for 1"},
 #     {:expensive_result=>"result for 1"}]
 
 sources = [1, 2, 2]
-results = ExampleTransform.call(*sources)
+results = ExampleTransformation.call(*sources)
 # expensive_method was called!
 # expensive_method was called!
 # => [{:expensive_result=>"result for 1"},
@@ -222,7 +222,7 @@ results = ExampleTransform.call(*sources)
 
 ### Calculating A Transform Only Once
 
-You may find cases where you only need to calculate the results of a Transform once. As an example, perhaps to add a timestamp to the resulting object. This can be done by supplying the DSL's Transform creation methods with the `memoize: :first` option. This stores the first value for the first Transform call, and will continue using it for all future calls regardless of the Source:
+You may find cases where you only need to calculate the results of a Transform once. As an example, you may want to add a timestamp depicting when the Transformation was called to the Result. This can be done by supplying the DSL's Transform creation methods with the `memoize: :first` option. This stores the first value for the first Transform call, and will continue using it for all future calls regardless of the Source:
 
 ```ruby
 def current_time
@@ -230,12 +230,12 @@ def current_time
   Time.now
 end
 
-class ExampleTransform < Reforge::Transformation
+class ExampleTransformation < Reforge::Transformation
   extract :timestamp, from: -> { current_time }, memoize: :first
 end
 
 sources = [*1..5]
-results = ExampleTransform.call(*sources)
+results = ExampleTransformation.call(*sources)
 # calculating current time
 # => [{:timestamp=>2020-12-10 18:29:52 -0500},
 #     {:timestamp=>2020-12-10 18:29:52 -0500},
@@ -246,7 +246,7 @@ results = ExampleTransform.call(*sources)
 
 ### Custom Memoization
 
-You may create your own memoization schemes in cases where memoization is required but none of the built-in schemes will work. As an example, perhaps an attribute of the source contains a substring which corresponds to an ID in your database; in other words: the transform result should be memoized by that substring, not by the source itself. This can be accomplished by providing a configuration hash to the memoize option, such as `memoize: { by: ->(s) { s.id_attr[0..10] } }`. This configuration hash must contain the `:by` key, which must contain a [valid tranform definition](#defining-transforms) - either a Proc or a configuration hash. When the transform specified at the `:by` key results in a value for which the transform was already calculated, then the memoized transform will return the stored result:
+You may create your own memoization schemes in cases where memoization is required but none of the built-in schemes will work. As an example, perhaps an attribute of the source contains a substring which corresponds to an ID in your database; in other words: the transform result should be memoized by that substring, not by the source itself. This can be accomplished by providing a configuration hash to the memoize option, such as `memoize: { by: ->(s) { s.id_attr[0..10] } }`. This configuration hash must contain the `:by` key, which must contain a [valid transform definition](#defining-transforms) - either a Proc or a configuration hash. When the transform specified at the `:by` key results in a value which was already calculated, then the memoized transform will return the stored result:
 
 ```ruby
 def find_customer(customer_id)
@@ -254,9 +254,9 @@ def find_customer(customer_id)
   Customer.find(customer_id)
 end
 
-class ExampleTransform < Reforge::Transformation
+class ExampleTransformation < Reforge::Transformation
   extract :customer,
-          from: ->(source) { find_customer(source[:purchase_order].purchase_order.split("-").first) },
+          from: ->(source) { find_customer(source[:purchase_order].split("-").first) },
           memoize: { by: ->(source) { source[:purchase_order].split("-").first } }
 end
 
@@ -265,7 +265,7 @@ sources = [
   { purchase_order: "123-2020-12-02" },
   { purchase_order: "456-2020-12-01" }
 ]
-results = ExampleTransform.call(*sources)
+results = ExampleTransformation.call(*sources)
 # finding customer with id='123'
 # finding customer with id='456'
 # => [{:customer=>#<Retailer id: 123, ...>,
