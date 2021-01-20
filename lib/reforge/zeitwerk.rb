@@ -12,5 +12,6 @@ loader = Zeitwerk::Loader.new
 loader.tag = File.basename(reforge_path)
 loader.inflector = Zeitwerk::Inflector.new
 loader.inflector.inflect("dsl" => "DSL")
+loader.do_not_eager_load("#{__dir__}/zeitwerk.rb")
 loader.push_dir(reforge_dir)
 loader.setup
