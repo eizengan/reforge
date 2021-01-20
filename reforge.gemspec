@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |spec|
   spec.name = "reforge"
-  spec.version = "0.1.0"
+  spec.version = "0.1.1"
   spec.authors = ["Nate Eizenga"]
   spec.email = ["eizengan@gmail.com"]
 
@@ -32,7 +32,7 @@ Gem::Specification.new do |spec|
   spec.executables = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.required_ruby_version = ">= 2.5.8"
+  spec.required_ruby_version = [">= 2.5", "< 3"]
 
   spec.add_dependency "zeitwerk", "~> 2.4"
 
