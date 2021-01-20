@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |spec|
   spec.name = "reforge"
-  spec.version = "0.1.1"
+  spec.version = "0.1.2"
   spec.authors = ["Nate Eizenga"]
   spec.email = ["eizengan@gmail.com"]
 
