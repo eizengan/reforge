@@ -1,3 +1,7 @@
+# head
+
+- Extend support to Ruby 3.0
+
 # 0.1.2
 
 - Extend support to Ruby 2.5, 2.6, and 2.7
