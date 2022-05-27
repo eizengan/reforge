@@ -14,12 +14,13 @@ RSpec.describe Reforge::Transformation::Tree::AggregateNode::HashNode do
   describe "#call" do
     subject(:call) { instance.call(:source) }
 
-    let(:children) { { child1: child1, child2: child2 } }
     let(:child1) { instance_double(described_class) }
     let(:child2) { instance_double(described_class) }
 
     before do
-      allow(instance).to receive(:children).and_return(children)
+      instance.children[:child1] = child1
+      instance.children[:child2] = child2
+
       allow(child1).to receive(:call).and_return(:result1)
       allow(child2).to receive(:call).and_return(:result2)
     end

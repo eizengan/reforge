@@ -1,4 +1,7 @@
-require: rubocop-performance
+require:
+  - rubocop-performance
+  - rubocop-rake
+  - rubocop-rspec
 
 AllCops:
   TargetRubyVersion: 2.5
@@ -13,3 +16,9 @@ Style/MutableConstant:
   EnforcedStyle: strict
 Style/StringLiterals:
   EnforcedStyle: double_quotes
+RSpec/ExampleLength:
+  Enabled: false
+RSpec/MultipleExpectations:
+  Enabled: false
+RSpec/NestedGroups:
+  Enabled: false

@@ -9,7 +9,7 @@ RSpec.describe Reforge::Transformation::Tree do
     let(:transform) { Reforge::Transformation::Transform.new({ value: 0 }) }
 
     it "adds the expected nodes to the tree" do
-      expect { attach_transform }.to change { instance.root }.from(nil).to an_instance_of(described_class::AggregateNode)
+      expect { attach_transform }.to change(instance, :root).from(nil).to an_instance_of(described_class::AggregateNode)
       expect(instance.root[:foo]).to be_an_instance_of(described_class::AggregateNode)
       expect(instance.root[:foo][0]).to be_an_instance_of(described_class::TransformNode)
       expect(instance.root[:foo][0].transform).to be transform
@@ -31,9 +31,9 @@ RSpec.describe Reforge::Transformation::Tree do
       end
 
       context "when the path is incompatible with the key_type of the existing nodes" do
-        before { instance.attach_transform(:foo, 0, other_transform) }
-
         subject(:attach_transform) { instance.attach_transform(:foo, "bar", transform) }
+
+        before { instance.attach_transform(:foo, 0, other_transform) }
 
         it "raises an ArgumentError" do
           expect { attach_transform }.to raise_error ArgumentError, 'Expected "bar" at node path [:foo, "bar"] to be of Integer type'
@@ -55,7 +55,7 @@ RSpec.describe Reforge::Transformation::Tree do
       subject(:attach_transform) { instance.attach_transform(transform) }
 
       it "adds the expected node to the tree" do
-        expect { attach_transform }.to change { instance.root }.from(nil).to an_instance_of(described_class::TransformNode)
+        expect { attach_transform }.to change(instance, :root).from(nil).to an_instance_of(described_class::TransformNode)
         expect(instance.root.transform).to be transform
       end
 
