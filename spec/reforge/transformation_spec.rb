@@ -114,6 +114,7 @@ RSpec.describe Reforge::Transformation do
         subject(:transform) do
           subclass.transform transform_proc, into: %i[foo bar], memoize: { by: { attribute: :size } }
         end
+
         let(:transform_proc) { ->(s) { s[0] } }
 
         it "adds the expected transform definition" do
@@ -193,6 +194,7 @@ RSpec.describe Reforge::Transformation do
     end
   end
 
+  # rubocop:disable RSpec/SubjectStub
   describe ".call" do
     subject(:call) { subclass.call(:source) }
 
@@ -206,6 +208,7 @@ RSpec.describe Reforge::Transformation do
       expect(instance).to have_received(:call).once.with(:source)
     end
   end
+  # rubocop:enable RSpec/SubjectStub
 
   describe "#call" do
     subject(:call) { instance.call(:source) }

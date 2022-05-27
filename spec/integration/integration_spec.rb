@@ -20,7 +20,7 @@ class Account
   end
 end
 
-RSpec.describe "Transforming and memoizing data" do
+RSpec.describe "Transforming and memoizing data" do # rubocop:disable RSpec/DescribeClass
   subject(:results) { ExampleTransformation.call(*sources) }
 
   let(:current_time) { Time.now }
@@ -79,12 +79,14 @@ RSpec.describe "Transforming and memoizing data" do
   end
 
   it "memoizes data" do
-    expect(Account).to receive(:find).exactly(3).times
-    expect(Account).to receive(:find).once.with(1)
-    expect(Account).to receive(:find).once.with(2)
-    expect(Account).to receive(:find).once.with(999)
+    allow(Account).to receive(:find).and_call_original
 
     results
+
+    expect(Account).to have_received(:find).exactly(3).times
+    expect(Account).to have_received(:find).once.with(1)
+    expect(Account).to have_received(:find).once.with(2)
+    expect(Account).to have_received(:find).once.with(999)
 
     expect(Time).to have_received(:now).once
   end
